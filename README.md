@@ -1,7 +1,6 @@
 # colorizing_things
 let's add some colors to this dull world
 
-blabla
 
 SOTA:
 1. https://richzhang.github.io/colorization/resources/colorful_eccv2016.pdf
