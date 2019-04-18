@@ -34,7 +34,7 @@ def convert_lab2rgb(L, ab):
     # Concatanet gray tensor with ab tensor
     colorized_img = torch.cat((L, ab), 1)
 
-    # Change torch.Tensor to numpy array and permute the dimension
+    # Change torch.Tensor to numpy array and permute the dimensions
     # bs x ch x h x w -> bs x h x w x ch
     reversed_img = colorized_img.cpu().double().detach().permute(0, 2, 3, 1).numpy()
 
@@ -45,6 +45,8 @@ def convert_lab2rgb(L, ab):
         warnings.simplefilter("ignore")
         reversed_img[i, :, :, :] = color.lab2rgb(reversed_img[i, :, :, :])
 
+    # Convert back the numpy array to torch.Tensor.
+    # bs x h x w x ch -> bs x ch x h x w
     output = torch.from_numpy(reversed_img).float().permute(0, 3, 1, 2)
 
     return output.cuda()
