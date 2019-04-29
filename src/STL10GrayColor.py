@@ -1,8 +1,11 @@
 #!/usr/bin/python
 import numpy as np
+import torch
 from torchvision.datasets import STL10
 from PIL import Image
 from skimage import io, color
+import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
 
 class STL10GrayColor(STL10):
 
@@ -35,6 +38,9 @@ class STL10GrayColor(STL10):
             L_normalized = (L + 128) / 255
             ab_normalized = np.asarray([a, b], dtype=np.float32)
 
+            # re-Transpose 3x128x128-> 128x128x3
+            #L, a, b = np.transpose(lab_img, (1, 2, 0))
+
             # Transform numpy array to torch tensor
             L_tensor = torch.from_numpy(L_normalized.astype(np.float32))
             ab_tensor = torch.from_numpy(ab_normalized.astype(np.float32))
@@ -45,7 +51,7 @@ if __name__ == "__main__":
     # Example of usage:
 
     # Image preprocessing
-    transform = transforms.Compose([transforms.Resize(128)])
+    transform = transforms.Compose([transforms.Resize(128), transforms.ToTensor()])
 
     # Load STL10 dataset
     stl10_trainset = STL10GrayColor(root="./data",
@@ -58,3 +64,6 @@ if __name__ == "__main__":
                      'shuffle': False}
 
     train_loader = DataLoader(stl10_trainset, **params_loader)
+
+    for idx, image in enumerate(train_loader) :
+        print(type(image))
