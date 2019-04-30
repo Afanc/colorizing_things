@@ -17,8 +17,8 @@ def get_dataset(size=128):
                                     split='train',
                                     download=True,
                                     transform=transform)
-  
-    return stl10_trainset 
+
+    return stl10_trainset
 
 
 def convert_lab2rgb(L, ab):
@@ -55,28 +55,37 @@ def convert_lab2rgb(L, ab):
 def train(model, training_loader) :
 
     model.train()
-    
+
     for iteration, images in enumerate(training_loader):
         images = images.to(device)
         labels = labels.to(device)
-        
+
         optimizer.zero_grad()
-        
+
         out = model(images)
-        
+
         loss = loss_function(out, labels)
 
         averages += (np.argmax(out.detach(), axis=1) == labels).sum().item()
         train_losses.append(loss.item())
-        
+
         loss.backward()
         optimizer.step()
-            
+
         if iteration % 100 == 0:
             print("Training iteration ", iteration, "out of 42")
 
-    accuracy = averages/len(training_loader.dataset)         
+    accuracy = averages/len(training_loader.dataset)
     epoch_train_loss = np.mean(train_losses)
-    
+
     return((epoch_train_loss, accuracy))
-    
+
+# https://github.com/pytorch/examples/blob/master/dcgan/main.py
+# custom weights initialization called on netG and netD
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
