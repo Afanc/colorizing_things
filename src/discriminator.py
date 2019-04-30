@@ -7,49 +7,49 @@ class Discriminator(nn.Module):
 
     This discrininator must check if the given a, b colors are real or not.
     """
-    def __init__(self, ndf, ncc):
+    def __init__(self, img_size, ncc=3, init_depth=64, max_depth=1024):
         """
         In:
             ndf(int): Number of channels in the internal layers.
             ncc(int): Number of color channels of the images given in parameters
                       (in this project ncc=2).
         """
+
         super(Discriminator, self).__init__()
 
-        self.layers = nn.Sequential(
-            # in_channels, out_channels, kernel_size, stride=1, padding=0,
-            # Formula: (H + 2*padding -kernel_size)/stride + 1
+        self.img_size = img_size
+        self.ncc = ncc
+        self.init_depth = init_depth
+        self.max_depth = max_depth
 
-            # in: 3 x 128 x 128
-            # out: 128 x 65 x 65 (64 x 33 x 33)
-            nn.Conv2d(ncc, ndf, 4, 2, 1, bias=False),
-            nn.LeakyReLU(0.2),
+        self._create_layers()
 
-            #out: 256 x 33 x 33 (128 x 17 x 17)
-            nn.Conv2d(ndf, ndf*2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf*2),
-            nn.LeakyReLU(0.2),
+    def _create_layers(self):
+        internal_layers = []
+        depth_in = self.ncc
+        depth_out = self.init_depth
 
-            # out 512 x 17 x 17 (256 x 9 x 9)
-            nn.Conv2d(ndf*2, ndf*4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf*4),
-            nn.LeakyReLU(0.2),
+        # Assume img size power of 2!
+        for _ in range(1, int(np.log2(self.img_size))-1):
+            # Reduce the img size by 2 each iteration\n",
+            internal_layers += self._init_block(depth_in, depth_out)
+            depth_in = depth_out
+            if not depth_out == self.max_depth:
+                depth_out *= 2
 
-            # out 1024 x 9 x 9 (512 x 5 x 5)
-            nn.Conv2d(ndf*4, ndf*8, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf*8),
-            nn.LeakyReLU(0.2),
+        # Last layer different from the others : depth x 4 x 4 -> 1 x 1 x 1\n",
+        internal_layers.append(nn.Conv2d(depth_in, 1, 4, 1, 0, bias=False))
 
-            # # out: 1024 x 5 x 5
-            nn.Conv2d(ndf*8, ndf*8, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf*8),
-            nn.LeakyReLU(0.2),
+        self.depth_in = depth_in
+        self.depth_out = depth_out
+        self.layers = nn.Sequential(*internal_layers)
 
-            # out (1 x 1 x 1)
-            nn.Conv2d(ndf*8, 1, 4, 1, 0, bias=False),
-            # nn.Sigmoid()
+    def _init_block(self, depth_in, depth_out):
+        block = [nn.Conv2d(depth_in, depth_out, 4, 2, 1, bias=False),
+                 nn.BatchNorm2d(depth_out),
+                 nn.LeakyReLU(0.2)]
 
-        )
+        return block
 
     def forward(self, input_):
         output = self.layers(input_)
