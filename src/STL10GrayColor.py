@@ -51,7 +51,7 @@ if __name__ == "__main__":
     # Example of usage:
 
     # Image preprocessing
-    transform = transforms.Compose([transforms.Resize(128), transforms.ToTensor()])
+    transform = transforms.Compose([transforms.Resize(128)])#, transforms.ToTensor()])
 
     # Load STL10 dataset
     stl10_trainset = STL10GrayColor(root="./data",
@@ -59,11 +59,12 @@ if __name__ == "__main__":
                                     download=True,
                                     transform=transform)
 
+
     # Parameters
     params_loader = {'batch_size': 32,
                      'shuffle': False}
 
     train_loader = DataLoader(stl10_trainset, **params_loader)
 
-    for idx, image in enumerate(train_loader) :
-        print(type(image))
+    for idx, (image_g, image_c) in enumerate(train_loader) :
+        print(type(image_g))

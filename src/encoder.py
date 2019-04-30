@@ -4,17 +4,24 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import models
 import utils as ut
+import torch.nn as nn
 
-def encoder() :
+def Encoder() :
+    """
+    Encoder : returns a shortened version of the vgg16 pretrained model.
+    """
 
-    images = ut.get_dataset()    #returns all images, color and bw
+    vgg_model = models.vgg16(pretrained=True)
 
-    image_loader = DataLoader(dataset=images, batch_size=32, shuffle=True)
+    encoder = nn.Sequential(*list(vgg_model.children())[:-2])
+    encoder[0][0].in_channels=1
+    print(encoder)
+    
+    #encoder = models.vgg16_bn(pretrained=True)
+    #encoder.features[0].in_channels=1
+    #encoder.features[43] = Identity()
+    
+    return encoder
 
-    encoder = models.vgg16_bn(pretrained=True)
-    encoder.features[0].in_channels=1
-    #modifier la sortie - jarter le fc
-
-    print(encoder.features)
-
-encoder()
+if __name__ == "__main__" :
+    e = Encoder()

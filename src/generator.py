@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import torch.nn as nn
 
 class Generator(nn.Module):
@@ -9,7 +11,7 @@ class Generator(nn.Module):
     """
 
     # TODO: Create a dynamic generator with (z_dim, img_size, ncc).
-    def __init__(self, Z_dim, ngf, ncc=2):
+    def __init__(self, Z_dim=512, ngf=128, ncc=2):
         """
         In:
             Z_dim(torch.Tensor): Random vector to transform in image.

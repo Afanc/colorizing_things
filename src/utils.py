@@ -5,19 +5,20 @@ import torch
 import torchvision.transforms as transforms
 from torchvision.transforms import Resize
 from skimage import color
-import STL10 as stl
+#import STL10 as stl
+from torchvision.datasets import STL10
+import STL10GrayColor as stl_gray
 
 
 def get_dataset(size=128):
-    resize = transforms.Compose([Resize(size)])
+    transform = transforms.Compose([transforms.Resize(128)])
 
-    all_images = stl.STL10(root='../data',
-                           split='train+unlabeled',
-                           transform=resize,
-                           target_transform=resize,
-                           download=True)
-
-    return all_images
+    stl10_trainset = stl_gray.STL10GrayColor(root="../data",
+                                    split='train',
+                                    download=True,
+                                    transform=transform)
+  
+    return stl10_trainset 
 
 
 def convert_lab2rgb(L, ab):
@@ -50,3 +51,32 @@ def convert_lab2rgb(L, ab):
     output = torch.from_numpy(reversed_img).float().permute(0, 3, 1, 2)
 
     return output.cuda()
+
+def train(model, training_loader) :
+
+    model.train()
+    
+    for iteration, images in enumerate(training_loader):
+        images = images.to(device)
+        labels = labels.to(device)
+        
+        optimizer.zero_grad()
+        
+        out = model(images)
+        
+        loss = loss_function(out, labels)
+
+        averages += (np.argmax(out.detach(), axis=1) == labels).sum().item()
+        train_losses.append(loss.item())
+        
+        loss.backward()
+        optimizer.step()
+            
+        if iteration % 100 == 0:
+            print("Training iteration ", iteration, "out of 42")
+
+    accuracy = averages/len(training_loader.dataset)         
+    epoch_train_loss = np.mean(train_losses)
+    
+    return((epoch_train_loss, accuracy))
+    

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 class VGG(nn.Module):
-    def __init__(self, features, num_classes=1000, init_weights=True):
+    def __init__(self, features, init_weights=True):
         super(VGG, self).__init__()
         self.features = features
 
@@ -10,5 +10,5 @@ class VGG(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        x = x.view(x.size(0), -1)
+        #x = x.view(x.size(0), -1)
         return x
