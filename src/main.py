@@ -57,9 +57,7 @@ optimizer_e = torch.optim.Adam(encoder.parameters(), lr=0.0001, betas=(0.5, 0.99
 optimizer_g = torch.optim.Adam(generator.parameters(), lr=0.0001, betas=(0.5, 0.999))
 optimizer_d = torch.optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
-real_label = 1
-fake_label = 0
-   
+real_label, fake_label = (1, 0)
 
 for batch_index, (image_g, image_c) in enumerate(train_loader):
 
@@ -84,8 +82,6 @@ for batch_index, (image_g, image_c) in enumerate(train_loader):
     
     # generate color image
 
-    generator.zero_grad()
-        
     enc_output = encoder(image_g)
 
     print('encoded')
@@ -99,9 +95,8 @@ for batch_index, (image_g, image_c) in enumerate(train_loader):
     # train discriminator with fake
     print("training discriminator with fake")
 
-    discriminator.zero_grad()
-
-    d_fake_output = discriminator(color_output)
+    #why detach ? https://github.com/pytorch/examples/issues/116
+    d_fake_output = discriminator(color_output.detach())
 
     print("discriminated")
     print(d_fake_output.shape)
@@ -120,6 +115,9 @@ for batch_index, (image_g, image_c) in enumerate(train_loader):
 
     labels.fill_(real_label)
 
+    #this is needed because of the previous detach, line 99.
+    d_fake_output = discriminator(color_output)
+
     errG = criterion(d_fake_output, labels)
     errG.backward()
 
@@ -130,4 +128,3 @@ for batch_index, (image_g, image_c) in enumerate(train_loader):
     demultiplier.zero_grad()
     # no idea how to do this
 
-    break
