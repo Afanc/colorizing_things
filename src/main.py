@@ -14,17 +14,19 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
+import demultiplier
 import encoder 
 import generator
 import discriminator
 import STL10GrayColor as STLGray
 import utils as utls
+import numpy as np
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 #data
-transform = transforms.Compose([transforms.Resize(224)])#,
+transform = transforms.Compose([transforms.Resize(128)])#,
 #                                transforms.ToTensor()])
 
 # Load STL10 dataset
@@ -34,58 +36,98 @@ stl10_trainset = STLGray.STL10GrayColor(root="./data",
                               transform=transform)
 
 # Parameters
-params_loader = {'batch_size': 32,
+batch_size = 32
+z_dim = 512
+params_loader = {'batch_size': batch_size,
                'shuffle': False}
 
 train_loader = DataLoader(stl10_trainset, **params_loader)
 
+demultiplier = demultiplier.Demultiplier()
 encoder = encoder.Encoder()
-decoder = generator.Generator()
+generator = generator.Generator()
+generator.apply(utls.weights_init)
 
-loss_func = nn.MSELoss()
-optimizer = torch.optim.Adam(encoder.parameters(), lr=0.0001)
+discriminator = discriminator.Discriminator()
+discriminator.apply(utls.weights_init)
 
-class Demultiplier(nn.Module):
-    """converts 1 channel to 3"""
-    # o = [(i + 2p -k)/s + 1]
+criterion = nn.MSELoss()
+optimizer_m = torch.optim.Adam(demultiplier.parameters(), lr=0.0001, betas=(0.5, 0.999))
+optimizer_e = torch.optim.Adam(encoder.parameters(), lr=0.0001, betas=(0.5, 0.999))
+optimizer_g = torch.optim.Adam(generator.parameters(), lr=0.0001, betas=(0.5, 0.999))
+optimizer_d = torch.optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
-    def __init__(self):
-        super(Demultiplier, self).__init__()
-        self.conv = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=3, kernel_size=(3,3), padding=1))
-    
-    def forward(self, x):
-        print(torch.unsqueeze(x, 1).shape)
-        x = torch.unsqueeze(x,1)
-        out = self.conv(x)
-        return out
-    
-demultiplier = Demultiplier()
-
-import numpy as np
+real_label = 1
+fake_label = 0
+   
 
 for batch_index, (image_g, image_c) in enumerate(train_loader):
 
+    # train discriminator with real
+    print("training discriminator with real")
+
+    discriminator.zero_grad()
+
+    d_real_output = discriminator(image_c)
+
+    labels = torch.full((image_c.shape[0],), real_label) #device = device
+
+    errD_real = criterion(d_real_output, labels)
+    errD_real.backward()
+
+    # demultiply
 
     image_g = demultiplier(image_g)
 
     print('Demultiplied')
+    print(image_g.shape)
     
-    optimizer.zero_grad()
+    # generate color image
+
+    generator.zero_grad()
         
-    output = encoder(image_g)
+    enc_output = encoder(image_g)
 
     print('encoded')
-    print(output.shape)
+    print(enc_output.shape)
     
-    output = decoder(output)
+    color_output = generator(enc_output)
     
     print('decoded')
-    print(output.shape)
+    print(color_output.shape)
+
+    # train discriminator with fake
+    print("training discriminator with fake")
+
+    discriminator.zero_grad()
+
+    d_fake_output = discriminator(color_output)
+
+    print("discriminated")
+    print(d_fake_output.shape)
+
+    labels = torch.full((image_c.shape[0],), fake_label) #device = device
+
+    errD_real = criterion(d_fake_output, labels)
+    errD_real.backward()
+    
+    optimizer_d.step()
+
+    # train generator
+    print("training generator")
+
+    generator.zero_grad()
+
+    labels.fill_(real_label)
+
+    errG = criterion(d_fake_output, labels)
+    errG.backward()
+
+    optimizer_g.step()
+
+    # train demultiplier
+
+    demultiplier.zero_grad()
+    # no idea how to do this
 
     break
-
-
-
-
-

@@ -1,4 +1,7 @@
+#!/usr/bin/python
+
 from torch import nn
+import numpy as np
 
 # TODO: Same as the generator create dynamicly the network.
 class Discriminator(nn.Module):
@@ -7,7 +10,7 @@ class Discriminator(nn.Module):
 
     This discrininator must check if the given a, b colors are real or not.
     """
-    def __init__(self, img_size, ncc=3, init_depth=64, max_depth=1024):
+    def __init__(self, img_size=128, ncc=2, init_depth=64, max_depth=1024):
         """
         In:
             ndf(int): Number of channels in the internal layers.
