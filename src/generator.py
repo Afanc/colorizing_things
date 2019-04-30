@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import torch.nn as nn
 
 class Generator(nn.Module):
