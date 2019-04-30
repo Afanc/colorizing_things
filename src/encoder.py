@@ -13,9 +13,12 @@ def Encoder() :
 
     vgg_model = models.vgg16(pretrained=True)
 
-    encoder = nn.Sequential(*list(vgg_model.children())[:-2])
-    encoder[0][0].in_channels=1
+    encoder = nn.Sequential(*list(vgg_model.children())[:-2][0][:],
+                            nn.Conv2d(512, 512, (7,7), 1, 0),
+                            nn.LeakyReLU(0.2))
     print(encoder)
+    encoder[0].in_channels=1
+    #print(encoder)
     
     #encoder = models.vgg16_bn(pretrained=True)
     #encoder.features[0].in_channels=1
