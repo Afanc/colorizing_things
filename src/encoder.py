@@ -16,7 +16,7 @@ def Encoder() :
     encoder = nn.Sequential(*list(vgg_model.children())[:-2][0][:],
                             nn.Conv2d(512, 512, (7,7), 1, 0),
                             nn.LeakyReLU(0.2))
-    print(encoder)
+    #print(encoder)
     encoder[0].in_channels=1
     #print(encoder)
     

@@ -69,12 +69,10 @@ for batch_index, (image_g, image_c) in enumerate(train_loader):
 
     image_g = demultiplier(image_g)
 
-    print('All good')
+    print('Demultiplied')
     
     optimizer.zero_grad()
         
-    print(encoder.forward)
-    
     output = encoder(image_g)
 
     print('encoded')
@@ -82,13 +80,8 @@ for batch_index, (image_g, image_c) in enumerate(train_loader):
     
     output = decoder(output)
     
+    print('decoded')
     print(output.shape)
-    break
-    #output = decoder(output)
-    loss = loss_func(output, image)
-    loss.backward()
-    optimizer.step()
-    losses.append(loss.data.cpu())
 
     break
 
