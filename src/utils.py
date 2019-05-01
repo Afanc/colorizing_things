@@ -48,7 +48,7 @@ def convert_lab2rgb(L, ab):
 
     # Convert back the numpy array to torch.Tensor.
     # bs x h x w x ch -> bs x ch x h x w
-    output = torch.from_numpy(reversed_img).float().permute(0, 3, 1, 2)
+    output = torch.from_numpy(reversed_img).float() #.permute(0, 3, 1, 2)
 
     return output.cuda()
 

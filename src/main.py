@@ -157,27 +157,30 @@ for i in range(0,n_epochs) :
       D_losses.append(total_errD.item())
       G_losses.append(errG.item())
       
-      if (j == 50 and plot_this_shit):
+      if (j == 0 and plot_this_shit):
         with torch.no_grad():
           color_output = generator(enc_output).detach().cpu()
           
           r, c = 5, 5
           index = 0
           fig, axs = plt.subplots(r, c, figsize=(10,10))
+          
+          img_g = image_g.cpu()
+          img_g = img_g.detach()
+          img_c = color_output.detach()
+          final = utls.convert_lab2rgb(img_g, img_c).cpu()
            
           for a in range(r):
             for b in range(c):
-                img_g = image_g.cpu()[index,...]
-                img_g = img_g.detach().numpy()*255
-                img_c = color_output[index,...].detach().numpy()+128
 
-                final = np.transpose(np.array([img_g, img_c[0,...], img_c[1,...]]), (1,2,0)) #not quite sure
-                
-                axs[a,b].imshow(lab2rgb(final))
+                axs[a,b].imshow(final[index, ...])
                 axs[a,b].axis('off')
                 
                 if (index == 1) :
-                  print("R min/max : ", np.min(final[0]), np.max(final[0]), "G min/max : ", np.min(final[1]), np.max(final[1]), "B min/max : ", np.min(final[2]), np.max(final[2]))
+                  final = final.numpy()
+                  print("R min/max : ", np.min(final[index, ..., 0]), np.max(final[index, ..., 0]),
+                        "G min/max : ", np.min(final[index, ..., 1]), np.max(final[index, ..., 1]),
+                        "B min/max : ", np.min(final[index, ..., 2]), np.max(final[index, ..., 2]))
                 
                 index += 1
           

@@ -36,7 +36,7 @@ class STL10GrayColor(STL10):
 
             # Normalize
             L_normalized = (L + 128) / 255
-            ab_normalized = np.asarray([a, b], dtype=np.float32)
+            ab_normalized = np.asarray([a, b], dtype=np.float32) #trying 128
 
             # re-Transpose 3x128x128-> 128x128x3
             #L, a, b = np.transpose(lab_img, (1, 2, 0))
