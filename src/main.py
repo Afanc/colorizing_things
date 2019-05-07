@@ -35,7 +35,7 @@ transform = transforms.Compose([transforms.Resize(128)])#,
 
 # Load STL10 dataset
 stl10_trainset = STLGray.STL10GrayColor(root="./data",
-                              split='train',
+                              split='train+unlabeled',
                               download=True,
                               transform=transform)
 
@@ -44,7 +44,7 @@ stl10_trainset = STLGray.STL10GrayColor(root="./data",
 
 # Parameters
 batch_size = 32
-z_dim = 128
+z_dim = 512
 params_loader = {
     'batch_size': batch_size,
     'shuffle': False
@@ -58,11 +58,11 @@ train_loader = DataLoader(stl10_trainset, **params_loader)
 encoder = enc.Encoder(z_dim=z_dim)
 encoder = encoder.to(device)
 
-generator = gen.Generator(z_dim=z_dim)
+generator = gen.Generator(z_dim=z_dim, init_depth=512)
 generator.apply(utls.weights_init)
 generator = generator.to(device)
 
-discriminator = disc.Discriminator()
+discriminator = disc.Discriminator(max_depth=512)
 discriminator.apply(utls.weights_init)
 discriminator = discriminator.to(device)
 
