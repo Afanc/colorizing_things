@@ -27,6 +27,8 @@ from skimage.color import lab2rgb
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+print("device is ", device)
+
 #data
 transform = transforms.Compose([transforms.Resize(128)])#,
 #                                transforms.ToTensor()])
@@ -76,11 +78,11 @@ optimizer_e = torch.optim.Adam(encoder.parameters(), **optimizer_params)
 optimizer_g = torch.optim.Adam(generator.parameters(), **optimizer_params)
 optimizer_d = torch.optim.Adam(discriminator.parameters(), **optimizer_params)
 
-print(encoder)
-print(generator)
-print(discriminator)
+#print(encoder)
+#print(generator)
+#print(discriminator)
 
-n_epochs = 10
+n_epochs = 100
 
 real_label = 1.
 fake_label = 0.
@@ -89,6 +91,8 @@ real_labels = torch.full((batch_size,), real_label, device=device)
 fake_labels = torch.full((batch_size,), fake_label, device=device)
 
 criterion = nn.MSELoss()
+
+lossD, lossG, lossE = [], [], []
 
 for epoch in range(n_epochs):
     print("epoch :", epoch)
@@ -147,24 +151,28 @@ for epoch in range(n_epochs):
         #######################
         
         #TODO BETTER WAY/optimizing img_colorized without detach
-        #img_features = encoder(img_g)
+        if(epoch >=10) :
 
-        # img_colorized = generator(img_features)
-        # 
-        # loss_e = enc_loss(img_colorized, img_c)
-        # 
-        # print("loss encoder :", loss_e.item())
-        # #bp
-        # encoder.zero_grad()
-        # loss_e.backward()
-        # optimizer_e.step()
-        # 
-        # print(list(generator.parameters()))
-        # 
+            img_features = encoder(img_g)
+
+            img_colorized = generator(img_features)
+            
+            loss_e = enc_loss(img_colorized, img_c)
+        
+            #bp
+            encoder.zero_grad()
+            loss_e.backward()
+            optimizer_e.step()
+        else :
+            loss_e = 0
+        
         #printing shit
         if (i%1 == 0) :
-            print("iteration ", i, "out of ", len(train_loader.dataset)//batch_size,
-                  "\terrD : ", round(loss_d.item(),3), "\terrG : ", round(loss_g.item(),3))
+            pass
+            #print("iteration ", i, "out of ", len(train_loader.dataset)//batch_size,
+            #      "\terrD : ", round(loss_d.item(),3),
+            #      "\terrG : ", round(loss_g.item(),3),
+            #      "\terrE : ", round(loss_e.item(),3))
         
         
         if i%100 == 0:
@@ -176,21 +184,20 @@ for epoch in range(n_epochs):
                               normalize=True)
             print(">plotted shit")
 
-fig, axs = plt.subplots(2, figsize=(10,10))
-fig.subplots_adjust(hspace=0.3)
+        lossD.append(loss_d.item())
+        lossG.append(loss_g.item())
+
+        if(epoch >=10):
+            lossE.append(loss_e.item())
+        else :
+            lossE.append(0)
 
 
-axs[0].set_title("All Losses")
-axs[0].set_xlabel("iterations")
-axs[0].set_ylabel("Loss")
-axs[0].plot(G_losses,label="G")
-axs[0].plot(D_losses,label="D")
-axs[0].legend()
-
-axs[1].set_title("After 1000 iterations")
-axs[1].set_xlabel("iterations")
-axs[1].set_ylabel("Loss")
-axs[1].plot(G_losses[1000:],label="G")
-axs[1].plot(D_losses[1000:],label="D")
-axs[1].legend()
-
+with open("all_losses.txt", "w+") as f :
+    f.write("iteration\tlossD\tlossG\tlossE\n")
+    for idx, obj in enumerate(lossD) :
+        f.write(str(idx)+"\t"+
+                str(round(lossD[idx],3))+"\t"+
+                str(round(lossG[idx],3))+"\t"+
+                str(round(lossE[idx],3))+"\n")
+    
