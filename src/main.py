@@ -33,6 +33,8 @@ from skimage.color import lab2rgb
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+print("device is ", device)
+
 #data
 transform = transforms.Compose([transforms.Resize(128)])#,
 #                                transforms.ToTensor()])
@@ -78,9 +80,9 @@ optimizer_e = torch.optim.Adam(encoder.parameters(), **optimizer_params)
 optimizer_g = torch.optim.Adam(generator.parameters(), **optimizer_params)
 optimizer_d = torch.optim.Adam(discriminator.parameters(), **optimizer_params)
 
-print(encoder)
-print(generator)
-print(discriminator)
+#print(encoder)
+#print(generator)
+#print(discriminator)
 
 n_epochs = 10
 
@@ -132,14 +134,14 @@ for epoch in range(n_epochs):
         #TODO BETTER WAY/optimizing img_colorized without detach
         #img_features = encoder(img_g)
 
-        img_colorized = generator(img_features)
-        
-        loss_e = enc_loss(img_colorized, img_c)
-        
-        #bp
-        encoder.zero_grad()
-        loss_e.backward()
-        optimizer_e.step()
+        #img_colorized = generator(img_features)
+        #
+        #loss_e = enc_loss(img_colorized, img_c)
+        #
+        ##bp
+        #encoder.zero_grad()
+        #loss_e.backward()
+        #optimizer_e.step()
         
         #printing shit
         if (i%1 == 0) :
