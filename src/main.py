@@ -8,6 +8,12 @@ Original file is located at
 """
 
 #!/usr/bin/python
+import os, ssl
+if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
+    getattr(ssl, '_create_unverified_context', None)): 
+
+    ssl._create_default_https_context = ssl._create_unverified_context
+
 
 import torch
 import torch.nn as nn
@@ -15,7 +21,6 @@ import torchvision.transforms as transforms
 import torchvision.utils as vutils
 from torch.utils.data import DataLoader
 
-import demultiplier as dem
 import encoder as enc
 import generator as gen
 import discriminator as disc
@@ -151,21 +156,5 @@ for epoch in range(n_epochs):
                               normalize=True)
             print(">plotted shit")
 
-fig, axs = plt.subplots(2, figsize=(10,10))
-fig.subplots_adjust(hspace=0.3)
-
-
-axs[0].set_title("All Losses")
-axs[0].set_xlabel("iterations")
-axs[0].set_ylabel("Loss")
-axs[0].plot(G_losses,label="G")
-axs[0].plot(D_losses,label="D")
-axs[0].legend()
-
-axs[1].set_title("After 1000 iterations")
-axs[1].set_xlabel("iterations")
-axs[1].set_ylabel("Loss")
-axs[1].plot(G_losses[1000:],label="G")
-axs[1].plot(D_losses[1000:],label="D")
-axs[1].legend()
-
+    torch.save(generator.state_dict(), f'./_generator_epoch_{epoch}.pth')
+    torch.save(discriminator.state_dict(), f'./_discriminator_epoch_{epoch}.pth')
