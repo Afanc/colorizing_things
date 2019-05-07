@@ -43,3 +43,35 @@ def gen_loss(netD, fake_data):
     loss = -netD(fake_data).mean()
 
     return loss
+
+def ls_dis_loss(net_d, reals, fakes, real_labels,
+                fake_labels, criterion = nn.MSELoss()):
+
+    output_real = net_d(reals)
+    loss_real = criterion(output_real, real_labels)
+
+    output_fake = net_d(fakes)
+    loss_fake = criterion(output_fake, fake_labels)
+
+    return output_real + output_fake
+
+def ls_gen_loss(net_d, fakes, labels, criterion = nn.MSELoss()):
+    output = netD(fake_colors)
+    loss_g = criterion(output, labels)
+
+    return loss_g
+
+# Example of use:
+# real_labels = torch.full((batch_size,), real_label, device=device)
+# fake_labels = torch.full((batch_size,), fake_label, device=device)
+#
+# in epochs:
+# reals = images
+# noise = noise = torch.randn(batch_size, z_dim, 1, 1, device=device)
+# fakes = netG(noise).detach()
+#
+# loss_d = ls_dis_loss(netD, reals, fakes, real_labels, fake_labels)
+#
+
+# loss_g = ls_gen_loss(netD, fakes, real_labels)
+
