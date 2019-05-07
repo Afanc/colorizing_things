@@ -15,7 +15,6 @@ import torchvision.transforms as transforms
 import torchvision.utils as vutils
 from torch.utils.data import DataLoader
 
-import demultiplier as dem
 import encoder as enc
 import generator as gen
 import discriminator as disc
@@ -43,7 +42,7 @@ stl10_trainset = STLGray.STL10GrayColor(root="./data",
 
 # Parameters
 batch_size = 32
-z_dim = 512
+z_dim = 128
 params_loader = {'batch_size': batch_size,
                'shuffle': False}
 
@@ -52,10 +51,10 @@ train_loader = DataLoader(stl10_trainset, **params_loader)
 #demultiplier = dem.Demultiplier()
 #demultiplier = demultiplier.to(device)
 
-encoder = enc.Encoder()
+encoder = enc.Encoder(z_dim=z_dim)
 encoder = encoder.to(device)
 
-generator = gen.Generator()
+generator = gen.Generator(z_dim=z_dim)
 generator.apply(utls.weights_init)
 generator = generator.to(device)
 
@@ -96,11 +95,11 @@ for epoch in range(n_epochs):
         #######################
         # Train Discriminator #
         #######################
-        img_features = encoder(img_g).detach()
+        img_features = encoder(img_g)
 
-        img_colorized = generator(img_features).detach()
+        img_colorized = generator(img_features.detach())
 
-        loss_d = losses.dis_loss(discriminator, img_c, img_colorized)
+        loss_d = losses.dis_loss(discriminator, img_c, img_colorized.detach())
 
         #bp
         discriminator.zero_grad()
@@ -111,7 +110,7 @@ for epoch in range(n_epochs):
         # Train Generator #
         #######################
         
-        img_colorized = generator(img_features) #re attach ?
+        #img_colorized = generator(img_features) #re attach ?
         
         loss_g = losses.gen_loss(discriminator, img_colorized)
         
@@ -125,7 +124,7 @@ for epoch in range(n_epochs):
         #######################
         
         #TODO BETTER WAY/optimizing img_colorized without detach
-        img_features = encoder(img_g)
+        #img_features = encoder(img_g)
 
         img_colorized = generator(img_features)
         
