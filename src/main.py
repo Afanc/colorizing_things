@@ -82,7 +82,7 @@ optimizer_d = torch.optim.Adam(discriminator.parameters(), **optimizer_params)
 #print(generator)
 #print(discriminator)
 
-n_epochs = 100
+n_epochs = 1000
 
 real_label = 1.
 fake_label = 0.
@@ -93,6 +93,10 @@ fake_labels = torch.full((batch_size,), fake_label, device=device)
 criterion = nn.MSELoss()
 
 lossD, lossG, lossE = [], [], []
+
+j = 0
+with open("all_losses.txt", "w+") as f :
+    f.write("iteration\tlossD\tlossG\tlossE\n")
 
 for epoch in range(n_epochs):
     print("epoch :", epoch)
@@ -163,7 +167,7 @@ for epoch in range(n_epochs):
         optimizer_e.step()
         
         #printing shit
-        if (i%1 == 0) :
+        if i%10 == 0 :
             pass
             #print("iteration ", i, "out of ", len(train_loader.dataset)//batch_size,
             #      "\terrD : ", round(loss_d.item(),3),
@@ -185,12 +189,15 @@ for epoch in range(n_epochs):
 
         lossE.append(loss_e.item())
 
+        torch.save(generator.state_dict(), f'./_weights_G_{epoch}.pth')
+        torch.save(discriminator.state_dict(), f'./_weight_D_{epoch}.pth')
+        torch.save(encoder.state_dict(), f'./_weight_E_{epoch}.pth')
 
-with open("all_losses.txt", "w+") as f :
-    f.write("iteration\tlossD\tlossG\tlossE\n")
-    for idx, obj in enumerate(lossD) :
-        f.write(str(idx)+"\t"+
-                str(round(lossD[idx],3))+"\t"+
-                str(round(lossG[idx],3))+"\t"+
-                str(round(lossE[idx],3))+"\n")
-    
+        j += 1
+        with open("all_losses.txt", "a+") as f :
+            f.write(str(j)+"\t"+
+                    str(round(lossD[-1],3))+"\t"+
+                    str(round(lossG[-1],3))+"\t"+
+                    str(round(lossE[-1],3))+"\n")
+            
+
