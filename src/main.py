@@ -167,8 +167,8 @@ for epoch in range(n_epochs):
         optimizer_e.step()
         
         #printing shit
-        if i%10 == 0 :
-            pass
+        #if i%10 == 0 :
+        #    pass
             #print("iteration ", i, "out of ", len(train_loader.dataset)//batch_size,
             #      "\terrD : ", round(loss_d.item(),3),
             #      "\terrG : ", round(loss_g.item(),3),
