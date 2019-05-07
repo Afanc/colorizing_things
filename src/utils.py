@@ -51,9 +51,9 @@ def convert_lab2rgb(L, ab, using_save_image=True):
     if using_save_image :
         output = torch.from_numpy(reversed_img).float().permute(0, 3, 1, 2)
     else :
-        output = torch.from_numpy(reversed_img).float() #.permute(0, 3, 1, 2)
+        output = torch.from_numpy(reversed_img).float().cuda() #.permute(0, 3, 1, 2)
 
-    return output.cuda()
+    return output
 
 def train(model, training_loader) :
 
