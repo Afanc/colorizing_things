@@ -44,19 +44,18 @@ def gen_loss(netD, fake_data):
 
     return loss
 
-def ls_dis_loss(net_d, reals, fakes, real_labels,
-                fake_labels, criterion = nn.MSELoss()):
+def ls_dis_loss(netD, reals, fakes, real_labels, fake_labels, criterion):
 
-    output_real = net_d(reals)
+    output_real = netD(reals)
     loss_real = criterion(output_real, real_labels)
 
-    output_fake = net_d(fakes)
+    output_fake = netD(fakes)
     loss_fake = criterion(output_fake, fake_labels)
 
-    return output_real + output_fake
+    return loss_real + loss_fake
 
-def ls_gen_loss(net_d, fakes, labels, criterion = nn.MSELoss()):
-    output = netD(fake_colors)
+def ls_gen_loss(netD, fakes, labels, criterion):
+    output = netD(fakes)
     loss_g = criterion(output, labels)
 
     return loss_g
