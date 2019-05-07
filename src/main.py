@@ -151,20 +151,16 @@ for epoch in range(n_epochs):
         #######################
         
         #TODO BETTER WAY/optimizing img_colorized without detach
-        if(epoch >=10) :
+        img_features = encoder(img_g)
 
-            img_features = encoder(img_g)
-
-            img_colorized = generator(img_features)
-            
-            loss_e = enc_loss(img_colorized, img_c)
+        img_colorized = generator(img_features)
         
-            #bp
-            encoder.zero_grad()
-            loss_e.backward()
-            optimizer_e.step()
-        else :
-            loss_e = 0
+        loss_e = enc_loss(img_colorized, img_c)
+    
+        #bp
+        encoder.zero_grad()
+        loss_e.backward()
+        optimizer_e.step()
         
         #printing shit
         if (i%1 == 0) :
@@ -187,10 +183,7 @@ for epoch in range(n_epochs):
         lossD.append(loss_d.item())
         lossG.append(loss_g.item())
 
-        if(epoch >=10):
-            lossE.append(loss_e.item())
-        else :
-            lossE.append(0)
+        lossE.append(loss_e.item())
 
 
 with open("all_losses.txt", "w+") as f :
