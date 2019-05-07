@@ -1,4 +1,6 @@
 # ref: https://github.com/akanimax/pro_gan_pytorch/blob/master/pro_gan_pytorch/Losses.py
+#!/usr/bin/python
+import torch
 
 def gradient_penalty(netD, real_data, fake_data, lambda_=10):
     bs, *_ = real_data.shape
@@ -35,7 +37,7 @@ def dis_loss(netD, real_data, fake_data, drift=1e-3):
 
     loss += gradient_penalty(netD, real_data, fake_data)
 
-    return Loss
+    return loss
 
 def gen_loss(netD, fake_data):
     loss = -netD(fake_data).mean()

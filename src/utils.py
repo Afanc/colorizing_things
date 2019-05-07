@@ -26,7 +26,7 @@ def convert_lab2rgb(L, ab, using_save_image=True):
 
     # Normalize grayscale to rgb
     L = L*255-128
-    # ab = ab*100
+    ab *= 100
 
     # Add missing dim:
     # batch_size x img_size x img_size -> batch_size x 1 x img_size x img_size
