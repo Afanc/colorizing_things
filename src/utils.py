@@ -21,7 +21,7 @@ def get_dataset(size=128):
     return stl10_trainset
 
 
-def convert_lab2rgb(L, ab):
+def convert_lab2rgb(L, ab, using_save_image=True):
     """Convert the batch images from lab -> rgb."""
 
     # Normalize grayscale to rgb
@@ -48,7 +48,10 @@ def convert_lab2rgb(L, ab):
 
     # Convert back the numpy array to torch.Tensor.
     # bs x h x w x ch -> bs x ch x h x w
-    output = torch.from_numpy(reversed_img).float() #.permute(0, 3, 1, 2)
+    if using_save_image :
+        output = torch.from_numpy(reversed_img).float().permute(0, 3, 1, 2)
+    else :
+        output = torch.from_numpy(reversed_img).float() #.permute(0, 3, 1, 2)
 
     return output.cuda()
 
