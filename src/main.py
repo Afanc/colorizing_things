@@ -9,10 +9,10 @@ Original file is located at
 
 #!/usr/bin/python
 
-
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
+import torchvision.utils as vutils
 from torch.utils.data import DataLoader
 
 import demultiplier as dem
@@ -21,6 +21,7 @@ import generator as gen
 import discriminator as disc
 import STL10GrayColor as STLGray
 import utils as utls
+import losses
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage.color import lab2rgb
@@ -37,6 +38,9 @@ stl10_trainset = STLGray.STL10GrayColor(root="./data",
                               download=True,
                               transform=transform)
 
+#TODO
+#train+unlabeled in split
+
 # Parameters
 batch_size = 32
 z_dim = 512
@@ -45,8 +49,8 @@ params_loader = {'batch_size': batch_size,
 
 train_loader = DataLoader(stl10_trainset, **params_loader)
 
-demultiplier = dem.Demultiplier()
-demultiplier = demultiplier.to(device)
+#demultiplier = dem.Demultiplier()
+#demultiplier = demultiplier.to(device)
 
 encoder = enc.Encoder()
 encoder = encoder.to(device)
@@ -59,139 +63,109 @@ discriminator = disc.Discriminator()
 discriminator.apply(utls.weights_init)
 discriminator = discriminator.to(device)
 
-criterion = nn.MSELoss()
+optimizer_params = {'lr': 0.0001,
+                    'betas':(0.5, 0.999)}
 
-optimizer_m = torch.optim.Adam(demultiplier.parameters(), lr=0.0001, betas=(0.5, 0.999))
-optimizer_e = torch.optim.Adam(encoder.parameters(), lr=0.0001, betas=(0.5, 0.999))
-optimizer_g = torch.optim.Adam(generator.parameters(), lr=0.0001, betas=(0.5, 0.999))
-optimizer_d = torch.optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
+enc_loss = nn.MSELoss()
 
-real_label, fake_label = (1, 0)
-i = 0
-n_epochs = 15
-D_losses = []
-G_losses = []
-plot_this_shit = True
+#optimizer_m = torch.optim.Adam(demultiplier.parameters(), lr=0.0001, betas=(0.5, 0.999))
+optimizer_e = torch.optim.Adam(encoder.parameters(), **optimizer_params)
+optimizer_g = torch.optim.Adam(generator.parameters(), **optimizer_params)
+optimizer_d = torch.optim.Adam(discriminator.parameters(), **optimizer_params)
 
-for i in range(0,n_epochs) :
-  print("epoch ", i)
-  i+=1
+print(encoder)
+print(generator)
+print(discriminator)
+
+n_epochs = 10
+
+
+for epoch in range(n_epochs):
+    print("epoch :", epoch)
   
-  j=0
-  
-  for batch_index, (image_g, image_c) in enumerate(train_loader):
+    for i, (img_g, img_c) in enumerate(train_loader):
+        
+        img_g = img_g.to(device)
+        img_c = img_c.to(device)
 
-      image_g = image_g.to(device)
-      image_c = image_c.to(device)
-
-      # train discriminator with real
-      #print("training discriminator with real")
-
-      discriminator.zero_grad()
-
-      d_real_output = discriminator(image_c)
-
-      labels = torch.full((image_c.shape[0],), real_label, device=device) #device = device
-      errD_real = criterion(d_real_output, labels)
-      errD_real.backward()
-
-      # demultiply
-
-      image_g_dem = demultiplier(image_g)
-
-      #print('Demultiplied')
-      #print(image_g.shape)
-      # generate color image
-
-      enc_output = encoder(image_g_dem)
-
-      #print('encoded')
-      #print(enc_output.shape)
-
-      color_output = generator(enc_output)
-
-      #print('decoded')
-      #print(color_output.shape)
-
-      # train discriminator with fake
-      #print("training discriminator with fake")
-
-      #why detach ? https://github.com/pytorch/examples/issues/116
-      d_fake_output = discriminator(color_output.detach())
-
-      #print("discriminated")
-      #print(d_fake_output.shape)
-
-      labels = torch.full((image_c.shape[0],), fake_label, device=device) #device = device
-
-      errD_fake = criterion(d_fake_output, labels)
-      errD_fake.backward()
-      
-      total_errD = errD_fake + errD_real
-
-      optimizer_d.step()
-
-      # train generator
-      #print("training generator")
-
-      generator.zero_grad()
-
-      labels.fill_(real_label)
-
-      #this is needed because of the previous detach, line 99.
-      d_fake_output = discriminator(color_output)
-
-      errG = criterion(d_fake_output, labels)
-      errG.backward()
-
-      optimizer_g.step()
-      # train demultiplier
-
-      demultiplier.zero_grad()
-      # no idea how to do this
-
-      if (j%10 == 0) :
-        print("iteration ", j, "out of ", len(train_loader.dataset)//batch_size, 
-              "\terrD : ", round(total_errD.item(),3), "\terrG : ", round(errG.item(),3))
-      
-      D_losses.append(total_errD.item())
-      G_losses.append(errG.item())
-      
-      if (j == 0 and plot_this_shit):
-        with torch.no_grad():
-          color_output = generator(enc_output).detach().cpu()
-          
-          r, c = 5, 5
-          index = 0
-          fig, axs = plt.subplots(r, c, figsize=(10,10))
-          
-          img_g = image_g.cpu()
-          img_g = img_g.detach()
-          img_c = color_output.detach()
-          final = utls.convert_lab2rgb(img_g, img_c).cpu()
-           
-          for a in range(r):
-            for b in range(c):
-
-                axs[a,b].imshow(final[index, ...])
-                axs[a,b].axis('off')
-                
-                if (index == 1) :
-                  final = final.numpy()
-                  print("R min/max : ", np.min(final[index, ..., 0]), np.max(final[index, ..., 0]),
-                        "G min/max : ", np.min(final[index, ..., 1]), np.max(final[index, ..., 1]),
-                        "B min/max : ", np.min(final[index, ..., 2]), np.max(final[index, ..., 2]))
-                
-                index += 1
-          
-          fig.savefig("___epoch_%d.png" % i)
-          plt.close()
-          print("plotted")
-      
-      
-      j += 1
+        bs, *_ = img_g.shape
+        if bs != batch_size:
+            continue
 
 
+        #######################
+        # Train Discriminator #
+        #######################
+        img_features = encoder(img_g).detach()
+
+        img_colorized = generator(img_features).detach()
+
+        loss_d = losses.dis_loss(discriminator, img_c, img_colorized)
+
+        #bp
+        discriminator.zero_grad()
+        loss_d.backward()
+        optimizer_d.step()
+        
+        #######################
+        # Train Generator #
+        #######################
+        
+        img_colorized = generator(img_features) #re attach ?
+        
+        loss_g = losses.gen_loss(discriminator, img_colorized)
+        
+        #bp
+        generator.zero_grad()     
+        loss_g.backward()
+        optimizer_g.step()
+        
+        #######################
+        # Train Encoder #
+        #######################
+        
+        #TODO BETTER WAY/optimizing img_colorized without detach
+        img_features = encoder(img_g)
+
+        img_colorized = generator(img_features)
+        
+        loss_e = enc_loss(img_colorized, img_c)
+        
+        #bp
+        encoder.zero_grad()
+        loss_e.backward()
+        optimizer_e.step()
+        
+        #printing shit
+        if (i%1 == 0) :
+            print("iteration ", i, "out of ", len(train_loader.dataset)//batch_size,
+                  "\terrD : ", round(loss_d.item(),3), "\terrG : ", round(loss_g.item(),3))
+        
+        
+        if i%100 == 0:
+            img_display = utls.convert_lab2rgb(img_g, img_colorized.detach())
+            
+            vutils.save_image(img_display,
+                              f"___epoch_{epoch}.png",
+                              nrow=5,
+                              normalize=True)
+            print(">plotted shit")
+
+fig, axs = plt.subplots(2, figsize=(10,10))
+fig.subplots_adjust(hspace=0.3)
 
 
+axs[0].set_title("All Losses")
+axs[0].set_xlabel("iterations")
+axs[0].set_ylabel("Loss")
+axs[0].plot(G_losses,label="G")
+axs[0].plot(D_losses,label="D")
+axs[0].legend()
+
+axs[1].set_title("After 1000 iterations")
+axs[1].set_xlabel("iterations")
+axs[1].set_ylabel("Loss")
+axs[1].plot(G_losses[1000:],label="G")
+axs[1].plot(D_losses[1000:],label="D")
+axs[1].legend()
 
