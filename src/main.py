@@ -187,9 +187,9 @@ for epoch in range(n_epochs):
         lossG.append(loss_g.item())
         lossE.append(loss_e.item())
 
-        torch.save(generator.state_dict(), f'./_weights_G_{epoch}.pth')
-        torch.save(discriminator.state_dict(), f'./_weights_D_{epoch}.pth')
-        torch.save(encoder.state_dict(), f'./_weights_E_{epoch}.pth')
+        torch.save(generator.state_dict(), f'./_weights_G_{epoch}_iteration_{i}.pth')
+        torch.save(discriminator.state_dict(), f'./_weights_D_{epoch}_iteration_{i}.pth')
+        torch.save(encoder.state_dict(), f'./_weights_E_{epoch}_iteration_{i}.pth')
 
         j += 1
         with open("all_losses.txt", "a+") as f :
