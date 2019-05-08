@@ -42,7 +42,7 @@ stl10_trainset = STLGray.STL10GrayColor(root="./data",
 #train+unlabeled in split
 
 # Parameters
-batch_size = 256
+batch_size = 64
 z_dim = 512
 params_loader = {
     'batch_size': batch_size,
@@ -178,7 +178,7 @@ for epoch in range(n_epochs):
             img_display = utls.convert_lab2rgb(img_g, img_colorized.detach())
 
             vutils.save_image(img_display,
-                              f"___epoch_{epoch}_iteration_{i}.png",
+                              f"/var/tmp/stu04/___epoch_{epoch}_iteration_{i}.png",
                               nrow=5,
                               normalize=True)
             print(">plotted shit")
@@ -187,9 +187,9 @@ for epoch in range(n_epochs):
         lossG.append(loss_g.item())
         lossE.append(loss_e.item())
 
-        torch.save(generator.state_dict(), f'./_weights_G_{epoch}_iteration_{i}.pth')
-        torch.save(discriminator.state_dict(), f'./_weights_D_{epoch}_iteration_{i}.pth')
-        torch.save(encoder.state_dict(), f'./_weights_E_{epoch}_iteration_{i}.pth')
+        torch.save(generator.state_dict(), f'/var/tmp/stu04/_weights_G_{epoch}_iteration_{i}.pth')
+        torch.save(discriminator.state_dict(), f'/var/tmp/stu04/_weights_D_{epoch}_iteration_{i}.pth')
+        torch.save(encoder.state_dict(), f'/var/tmp/stu04/_weights_E_{epoch}_iteration_{i}.pth')
 
         j += 1
         with open("all_losses.txt", "a+") as f :
