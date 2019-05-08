@@ -68,7 +68,8 @@ discriminator = discriminator.to(device)
 
 optimizer_params = {
     'lr': 0.0001,
-    'betas': (0.5, 0.999)
+    'betas': (0.5, 0.999),
+    'weight_decay': 1e-4
 }
 
 enc_loss = nn.MSELoss()
@@ -179,7 +180,7 @@ for epoch in range(n_epochs):
             img_display = utls.convert_lab2rgb(img_g, img_colorized.detach())
             
             vutils.save_image(img_display,
-                              f"___epoch_{epoch}.png",
+                              f"___epoch_{epoch}_iteration_{i}.png",
                               nrow=5,
                               normalize=True)
             print(">plotted shit")
