@@ -38,9 +38,6 @@ stl10_trainset = STLGray.STL10GrayColor(root="./data",
                               download=True,
                               transform=transform)
 
-#TODO
-#train+unlabeled in split
-
 # Parameters
 batch_size = 64
 z_dim = 512
@@ -51,18 +48,23 @@ params_loader = {
 
 train_loader = DataLoader(stl10_trainset, **params_loader)
 
-#demultiplier = dem.Demultiplier()
-#demultiplier = demultiplier.to(device)
+checkpoint = torch.load(PATH)
 
 encoder = enc.Encoder(z_dim=z_dim)
 encoder = encoder.to(device)
+encoder.load_state_dict(torch.load(PATH))
+#encoder.load_state_dict(checkpoint['encoder_state_dict'])
 
 generator = gen.Generator(z_dim=z_dim, init_depth=512)
-generator.apply(utls.weights_init)
+#generator.apply(utls.weights_init)
+generator.load_state_dict(torch.load(PATH))
+#generator.load_state_dict(checkpoint['generator_state_dict'])
 generator = generator.to(device)
 
 discriminator = disc.Discriminator(max_depth=512)
-discriminator.apply(utls.weights_init)
+#discriminator.apply(utls.weights_init)
+#discriminator.load_state_dict(checkpoint['discriminator_state_dict'])
+discriminator.load_state_dict(torch.load(PATH))
 discriminator = discriminator.to(device)
 
 optimizer_params = {
@@ -73,16 +75,19 @@ optimizer_params = {
 
 enc_loss = nn.MSELoss()
 
-#optimizer_m = torch.optim.Adam(demultiplier.parameters(), lr=0.0001, betas=(0.5, 0.999))
 optimizer_e = torch.optim.Adam(encoder.parameters(), **optimizer_params)
 optimizer_g = torch.optim.Adam(generator.parameters(), **optimizer_params)
 optimizer_d = torch.optim.Adam(discriminator.parameters(), **optimizer_params)
+
+#optimizer_e.load_state_dict(checkpoint['optimizer_e_state_dict'])
+#optimizer_g.load_state_dict(checkpoint['optimizer_g_state_dict'])
+#optimizer_d.load_state_dict(checkpoint['optimizer_d_state_dict'])
 
 #print(encoder)
 #print(generator)
 #print(discriminator)
 
-n_epochs = 1000
+n_epochs = 100
 
 real_label = 1.
 fake_label = 0.
@@ -135,8 +140,6 @@ for epoch in range(n_epochs):
         # Train Generator #
         #######################
 
-        #img_colorized = generator(img_features) #re attach ?
-
         loss_g = losses.gen_loss(discriminator, img_colorized)
         # loss_g = losses.ls_gen_loss(discriminator,
         #                             img_colorized,
@@ -147,13 +150,10 @@ for epoch in range(n_epochs):
         loss_g.backward()
         optimizer_g.step()
 
-        # print(list(generator.parameters()))
-
         #######################
         # Train Encoder #
         #######################
 
-        #TODO BETTER WAY/optimizing img_colorized without detach
         img_features = encoder(img_g)
 
         img_colorized = generator(img_features)
@@ -181,15 +181,24 @@ for epoch in range(n_epochs):
                               f"/var/tmp/stu04/___epoch_{epoch}_iteration_{i}.png",
                               nrow=5,
                               normalize=True)
-            print(">plotted shit")
+
+            #torch.save(generator.state_dict(), f'./_weights_G_{epoch}_iteration_{i}.pth')
+            #torch.save(discriminator.state_dict(), f'./_weights_D_{epoch}_iteration_{i}.pth')
+            #torch.save(encoder.state_dict(), f'./_weights_E_{epoch}_iteration_{i}.pth')
+            torch.save({
+                'encoder_state_dict': encoder.state_dict(),
+                'generator_state_dict': generator.state_dict(),
+                'discriminator_state_dict': discriminator.state_dict(),
+                'optimizer_e_state_dict': optimizer_e.state_dict(),
+                'optimizer_g_state_dict': optimizer_g.state_dict(),
+                'optimizer_d_state_dict': optimizer_d.state_dict(),
+            }, f'./_weights_{epoch}_iteration_{i}.pth')
+
+            print(">plotted and saved weights")
 
         lossD.append(loss_d.item())
         lossG.append(loss_g.item())
         lossE.append(loss_e.item())
-
-        torch.save(generator.state_dict(), f'/var/tmp/stu04/_weights_G_{epoch}_iteration_{i}.pth')
-        torch.save(discriminator.state_dict(), f'/var/tmp/stu04/_weights_D_{epoch}_iteration_{i}.pth')
-        torch.save(encoder.state_dict(), f'/var/tmp/stu04/_weights_E_{epoch}_iteration_{i}.pth')
 
         j += 1
         with open("all_losses.txt", "a+") as f :
