@@ -102,7 +102,7 @@ for epoch in range(n_epochs):
     print("epoch :", epoch)
 
     for i, (img_g, img_c) in enumerate(train_loader):
-        
+
         img_g = img_g.to(device)
         img_c = img_c.to(device)
 
@@ -131,41 +131,41 @@ for epoch in range(n_epochs):
         discriminator.zero_grad()
         loss_d.backward()
         optimizer_d.step()
-        
+
         #######################
         # Train Generator #
         #######################
-        
+
         #img_colorized = generator(img_features) #re attach ?
-        
+
         # loss_g = losses.gen_loss(discriminator, img_colorized)
         loss_g = losses.ls_gen_loss(discriminator,
                                     img_colorized,
                                     fake_labels,
                                     criterion)
         #bp
-        generator.zero_grad()     
+        generator.zero_grad()
         loss_g.backward()
         optimizer_g.step()
-        
+
         # print(list(generator.parameters()))
-        
+
         #######################
         # Train Encoder #
         #######################
-        
+
         #TODO BETTER WAY/optimizing img_colorized without detach
         img_features = encoder(img_g)
 
         img_colorized = generator(img_features)
-        
+
         loss_e = enc_loss(img_colorized, img_c)
-    
+
         #bp
         encoder.zero_grad()
         loss_e.backward()
         optimizer_e.step()
-        
+
         #printing shit
         if i%10 == 0 :
             pass
@@ -173,11 +173,11 @@ for epoch in range(n_epochs):
             #      "\terrD : ", round(loss_d.item(),3),
             #      "\terrG : ", round(loss_g.item(),3),
             #      "\terrE : ", round(loss_e.item(),3))
-        
-        
+
+
         if i%100 == 0:
             img_display = utls.convert_lab2rgb(img_g, img_colorized.detach())
-            
+
             vutils.save_image(img_display,
                               f"___epoch_{epoch}.png",
                               nrow=5,
@@ -199,5 +199,5 @@ for epoch in range(n_epochs):
                     str(round(lossD[-1],3))+"\t"+
                     str(round(lossG[-1],3))+"\t"+
                     str(round(lossE[-1],3))+"\n")
-            
+
 
