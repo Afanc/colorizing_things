@@ -39,7 +39,7 @@ stl10_trainset = STLGray.STL10GrayColor(root="./data",
                               transform=transform)
 
 # Parameters
-batch_size = 256
+batch_size = 128
 z_dim = 512
 params_loader = {
     'batch_size': batch_size,
@@ -48,23 +48,30 @@ params_loader = {
 
 train_loader = DataLoader(stl10_trainset, **params_loader)
 
-checkpoint = torch.load(PATH)
+load_old_state = True
 
+# Create model
 encoder = enc.Encoder(z_dim=z_dim)
-encoder = encoder.to(device)
-encoder.load_state_dict(torch.load(PATH))
-#encoder.load_state_dict(checkpoint['encoder_state_dict'])
 
 generator = gen.Generator(z_dim=z_dim, init_depth=512)
-#generator.apply(utls.weights_init)
-generator.load_state_dict(torch.load(PATH))
-#generator.load_state_dict(checkpoint['generator_state_dict'])
-generator = generator.to(device)
 
 discriminator = disc.Discriminator(max_depth=512)
-#discriminator.apply(utls.weights_init)
-#discriminator.load_state_dict(checkpoint['discriminator_state_dict'])
-discriminator.load_state_dict(torch.load(PATH))
+
+if load_old_state:
+    # Caution: I saved models with wrong name !!!!!!!!
+    checkpoint = torch.load('_weights_10_iteration_1600.pth')
+
+    encoder.load_state_dict(checkpoint['encoder_state_dict'])
+    generator.load_state_dict(checkpoint['generator_state_dict'])
+    discriminator.load_state_dict(checkpoint['discriminator_state_dict'])
+
+else:
+    generator.apply(utls.weights_init)
+    discriminator.apply(utls.weights_init)
+
+# Load model on GPU
+encoder = encoder.to(device)
+generator = generator.to(device)
 discriminator = discriminator.to(device)
 
 optimizer_params = {
@@ -75,17 +82,14 @@ optimizer_params = {
 
 enc_loss = nn.MSELoss()
 
-optimizer_e = torch.optim.Adam(encoder.parameters(), **optimizer_params)
-optimizer_g = torch.optim.Adam(generator.parameters(), **optimizer_params)
-optimizer_d = torch.optim.Adam(discriminator.parameters(), **optimizer_params)
-
-#optimizer_e.load_state_dict(checkpoint['optimizer_e_state_dict'])
-#optimizer_g.load_state_dict(checkpoint['optimizer_g_state_dict'])
-#optimizer_d.load_state_dict(checkpoint['optimizer_d_state_dict'])
-
-#print(encoder)
-#print(generator)
-#print(discriminator)
+if load_old_state:
+    optimizer_e.load_state_dict(checkpoint['optimizer_e_state_dict'])
+    optimizer_g.load_state_dict(checkpoint['optimizer_g_state_dict'])
+    optimizer_d.load_state_dict(checkpoint['optimizer_d_state_dict'])
+else:
+    optimizer_e = torch.optim.Adam(encoder.parameters(), **optimizer_params)
+    optimizer_g = torch.optim.Adam(generator.parameters(), **optimizer_params)
+    optimizer_d = torch.optim.Adam(discriminator.parameters(), **optimizer_params)
 
 n_epochs = 100
 
@@ -182,9 +186,6 @@ for epoch in range(n_epochs):
                               nrow=5,
                               normalize=True)
 
-            #torch.save(generator.state_dict(), f'./_weights_G_{epoch}_iteration_{i}.pth')
-            #torch.save(discriminator.state_dict(), f'./_weights_D_{epoch}_iteration_{i}.pth')
-            #torch.save(encoder.state_dict(), f'./_weights_E_{epoch}_iteration_{i}.pth')
             torch.save({
                 'encoder_state_dict': encoder.state_dict(),
                 'generator_state_dict': generator.state_dict(),
