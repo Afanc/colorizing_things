@@ -114,6 +114,7 @@ class GeneratorSeg(nn.Module):
         self.attention2 = SelfAttention(64)
 
     def forward(self, x):
+        x.unsqueeze_(1)
         x = self.convert_bw_to_rgb(x)
         enc1 = self.enc1(x)
         enc2 = self.enc2(enc1)

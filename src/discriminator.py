@@ -58,7 +58,7 @@ class Discriminator(nn.Module):
         output = self.layers(input_)
 
         return output.view(-1, 1).squeeze(1)
-from custumLayers import sn_conv2d, SelfAttention
+from CustomLayers import sn_conv2d, SelfAttention
 
 class SADiscriminator(nn.Module):
     """
@@ -66,7 +66,7 @@ class SADiscriminator(nn.Module):
     """
 
     def __init__(self, in_dim=3, img_size=64, conv_dim=64):
-        super(Discriminator, self).__init__()
+        super(SADiscriminator, self).__init__()
         self.in_dim = in_dim
         self.img_size = img_size
         self.conv_dim = conv_dim
