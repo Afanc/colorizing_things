@@ -39,7 +39,7 @@ stl10_trainset = STLGray.STL10GrayColor(root="./data",
                               transform=transform)
 
 # Parameters
-batch_size = 128
+batch_size = 64
 z_dim = 512
 params_loader = {
     'batch_size': batch_size,
@@ -48,7 +48,7 @@ params_loader = {
 
 train_loader = DataLoader(stl10_trainset, **params_loader)
 
-load_old_state = True
+load_old_state = False
 
 # Create model
 encoder = enc.Encoder(z_dim=z_dim)
@@ -59,7 +59,7 @@ discriminator = disc.Discriminator(max_depth=512)
 
 if load_old_state:
     # Caution: I saved models with wrong name !!!!!!!!
-    checkpoint = torch.load('_weights_10_iteration_1600.pth')
+    checkpoint = torch.load('_weights_8_iteration_600.pth')
 
     encoder.load_state_dict(checkpoint['encoder_state_dict'])
     generator.load_state_dict(checkpoint['generator_state_dict'])
@@ -82,15 +82,15 @@ optimizer_params = {
 
 enc_loss = nn.MSELoss()
 
+optimizer_e = torch.optim.Adam(encoder.parameters(), **optimizer_params)
+optimizer_g = torch.optim.Adam(generator.parameters(), **optimizer_params)
+optimizer_d = torch.optim.Adam(discriminator.parameters(), **optimizer_params)
+
 if load_old_state:
     optimizer_e.load_state_dict(checkpoint['optimizer_e_state_dict'])
     optimizer_g.load_state_dict(checkpoint['optimizer_g_state_dict'])
     optimizer_d.load_state_dict(checkpoint['optimizer_d_state_dict'])
-else:
-    optimizer_e = torch.optim.Adam(encoder.parameters(), **optimizer_params)
-    optimizer_g = torch.optim.Adam(generator.parameters(), **optimizer_params)
-    optimizer_d = torch.optim.Adam(discriminator.parameters(), **optimizer_params)
-
+    
 n_epochs = 100
 
 real_label = 1.
@@ -179,10 +179,10 @@ for epoch in range(n_epochs):
 
 
         if i%100 == 0:
-            #encoder.eval()
-            #generator.eval()
-            #img_features = encoder(img_g)
-            #img_colorized = generator(img_features)
+            encoder.eval()
+            generator.eval()
+            img_features = encoder(img_g)
+            img_colorized = generator(img_features)
             img_display = utls.convert_lab2rgb(img_g, img_colorized.detach())
 
             vutils.save_image(img_display,
@@ -197,7 +197,7 @@ for epoch in range(n_epochs):
                 'optimizer_e_state_dict': optimizer_e.state_dict(),
                 'optimizer_g_state_dict': optimizer_g.state_dict(),
                 'optimizer_d_state_dict': optimizer_d.state_dict(),
-            }, f'./_weights_{epoch}_iteration_{i}.pth')
+            }, f'/var/tmp/stu04/_weights_{epoch}_iteration_{i}.pth')
 
             print(">plotted and saved weights")
 
