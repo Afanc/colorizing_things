@@ -74,6 +74,7 @@ class Generator(nn.Module):
 
         return output
 
+import torch
 from CustomLayers import sn_conv2d, sn_convT2d, GenBlock, SelfAttention
 import torchvision.models as models
 
@@ -100,21 +101,23 @@ class GeneratorSeg(nn.Module):
         self.enc4 = nn.Sequential(*features[27:40])
 
         self.gen4 = nn.Sequential(
-            *([sn_convT2d(512, 256, kernel_size=2, stride=2)]+
-              [sn_conv2d(256, 256, kernel_size=3, stride=1, padding=1),
-               nn.BatchNorm2d(256),
-               nn.ReLU(True)]*4)
+            sn_conv2d(512, 256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(True),
+            sn_conv2d(256, 256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(True),
+            sn_convT2d(256, 256, kernel_size=2, stride=2)
         )
 
         self.gen3 = GenBlock(512, 128, 4)
         self.gen2 = GenBlock(256, 64, 2)
-        self.gen1 = GenBlock(128, color_ch, 2)
+        self.gen1 = GenBlock(128, color_ch, 3)
 
-        self.attention1 = SelfAttention(128)
+        # self.attention1 = SelfAttention(128)
         self.attention2 = SelfAttention(64)
 
     def forward(self, x):
-        x.unsqueeze_(1)
         x = self.convert_bw_to_rgb(x)
         enc1 = self.enc1(x)
         enc2 = self.enc2(enc1)
@@ -123,10 +126,13 @@ class GeneratorSeg(nn.Module):
 
         gen4 = self.gen4(enc4)
         gen3 = self.gen3(torch.cat([enc3, gen4], 1))
-        gen3 = self.attention1(gen3)
+        # gen3 = self.attention1(gen3)
         # Maybe should apply the attention layer on the enc
         # enc2 = self.attention1(enc2)
         gen2 = self.gen2(torch.cat([enc2, gen3], 1))
-        gen2 = self.attention2(gen2)
-        gen1 = self.gen1(torch.cat([enc1, gen2], 1))
+        # gen2 = self.attention2(gen2)
+        # enc1 = self.attention2(enc1)
+        enc_gen = torch.cat([enc1, gen2], 1)
+        enc_gen = self.attention(enc_gen)
+        gen1 = self.gen1(enc_gen)
         return gen1

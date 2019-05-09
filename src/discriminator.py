@@ -37,7 +37,7 @@ class Discriminator(nn.Module):
             # Reduce the img size by 2 each iteration\n",
             internal_layers += self._init_block(depth_in, depth_out)
             depth_in = depth_out
-            if not depth_out == self.max_depth:
+            if depth_out != self.max_depth:
                 depth_out *= 2
 
         # Last layer different from the others : depth x 4 x 4 -> 1 x 1 x 1\n",
@@ -80,7 +80,7 @@ class SADiscriminator(nn.Module):
             nn.LeakyReLU(0.1),
             sn_conv2d(self.conv_dim*4, self.conv_dim*4, 4, 2, 1),
             nn.LeakyReLU(0.1),
-            SelfAttention(256),
+            # SelfAttention(256),
             sn_conv2d(self.conv_dim*4, self.conv_dim*8, 4, 2, 1),
             nn.LeakyReLU(0.1),
             SelfAttention(512),

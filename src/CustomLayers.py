@@ -54,7 +54,6 @@ class GenBlock(nn.Module):
         middle_channels = in_channels // 2
 
         layers = [
-            sn_convT2d(in_channels, in_channels, kernel_size=2, stride=2),
             sn_conv2d(in_channels, middle_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(middle_channels),
             nn.ReLU(inplace=True)
@@ -68,6 +67,7 @@ class GenBlock(nn.Module):
             sn_conv2d(middle_channels, out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
+            sn_convT2d(in_channels, in_channels, kernel_size=2, stride=2),
         ]
         self.generate = nn.Sequential(*layers)
 
