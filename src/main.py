@@ -179,6 +179,10 @@ for epoch in range(n_epochs):
 
 
         if i%100 == 0:
+            #encoder.eval()
+            #generator.eval()
+            #img_features = encoder(img_g)
+            #img_colorized = generator(img_features)
             img_display = utls.convert_lab2rgb(img_g, img_colorized.detach())
 
             vutils.save_image(img_display,
