@@ -185,6 +185,9 @@ for epoch in range(n_epochs):
             img_colorized = generator(img_features)
             img_display = utls.convert_lab2rgb(img_g, img_colorized.detach())
 
+            encoder.train()
+            generator.train()
+
             vutils.save_image(img_display,
                               f"/var/tmp/stu04/___epoch_{epoch}_iteration_{i}.png",
                               nrow=5,
