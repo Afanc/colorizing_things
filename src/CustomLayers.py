@@ -52,22 +52,24 @@ class GenBlock(nn.Module):
     def __init__(self, in_channels, out_channels, nb_conv_layers):
         super(GenBlock, self).__init__()
         middle_channels = in_channels // 2
-
+        # layers = []
+        # layers = [
+        #     sn_conv2d(in_channels, middle_channels, kernel_size=3, padding=1),
+        #     nn.BatchNorm2d(middle_channels),
+        #     nn.ReLU(inplace=True)
+        # ]
+        # layers += [
+        #     sn_conv2d(middle_channels, middle_channels, kernel_size=3, padding=1),
+        #     nn.BatchNorm2d(middle_channels),
+        #     nn.ReLU(inplace=True),
+        # ] * (nb_conv_layers - 2)
         layers = [
             sn_conv2d(in_channels, middle_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(middle_channels),
-            nn.ReLU(inplace=True)
-        ]
-        layers += [
-            sn_conv2d(middle_channels, middle_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(middle_channels),
             nn.ReLU(inplace=True),
-        ] * (nb_conv_layers - 2)
-        layers += [
-            sn_conv2d(middle_channels, out_channels, kernel_size=3, padding=1),
+            sn_convT2d(middle_channels, out_channels, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
-            sn_convT2d(in_channels, in_channels, kernel_size=2, stride=2),
+            nn.ReLU(),
         ]
         self.generate = nn.Sequential(*layers)
 

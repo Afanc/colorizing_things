@@ -107,15 +107,25 @@ class GeneratorSeg(nn.Module):
             sn_conv2d(256, 256, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(True),
-            sn_convT2d(256, 256, kernel_size=2, stride=2)
+            sn_convT2d(256, 256, kernel_size=2, stride=2),
+            nn.BatchNorm2d(256),
+            nn.ReLU()
         )
 
-        self.gen3 = GenBlock(512, 128, 4)
+        self.gen3 = GenBlock(512, 128, 2)
         self.gen2 = GenBlock(256, 64, 2)
-        self.gen1 = GenBlock(128, color_ch, 3)
-
+        # self.gen1 = GenBlock(128, color_ch, 3)
+        self.gen1 = nn.Sequential(
+            sn_conv2d(128, 64, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+        )
+        self.last = nn.Sequential(
+            sn_convT2d(64, color_ch, kernel_size=4, stride=2, padding=1),
+            nn.Tanh()
+        )
         # self.attention1 = SelfAttention(128)
-        self.attention2 = SelfAttention(64)
+        self.attention = SelfAttention(64)
 
     def forward(self, x):
         x = self.convert_bw_to_rgb(x)
@@ -132,7 +142,7 @@ class GeneratorSeg(nn.Module):
         gen2 = self.gen2(torch.cat([enc2, gen3], 1))
         # gen2 = self.attention2(gen2)
         # enc1 = self.attention2(enc1)
-        enc_gen = torch.cat([enc1, gen2], 1)
-        enc_gen = self.attention(enc_gen)
-        gen1 = self.gen1(enc_gen)
-        return gen1
+        gen1 = self.gen1(torch.cat([enc1, gen2], 1))
+        attn = self.attention(gen1)
+        out = self.last(attn)
+        return out
