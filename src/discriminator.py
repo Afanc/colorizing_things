@@ -58,50 +58,36 @@ class Discriminator(nn.Module):
         output = self.layers(input_)
 
         return output.view(-1, 1).squeeze(1)
+from custumLayers import sn_conv2d, SelfAttention
 
+class SADiscriminator(nn.Module):
+    """
+    Discriminator with self attention layers
+    """
 
-class StatiStaticcDiscriminator(nn.Module):
-    def __init__(self, ndf, ncc):
+    def __init__(self, in_dim=3, img_size=64, conv_dim=64):
         super(Discriminator, self).__init__()
+        self.in_dim = in_dim
+        self.img_size = img_size
+        self.conv_dim = conv_dim
 
         self.layers = nn.Sequential(
-            # in_channels, out_channels, kernel_size, stride=1, padding=0,
-            # Formula: (H + 2*padding -kernel_size)/stride + 1
-            # (128 + 2*2 - 4)/2+1
-            # in: 3 x 128 x 128
-            # out: 128 x 65 x 65 (64 x 33 x 33)
-            nn.Conv2d(ncc, ndf, 4, 2, 1, bias=False),
-            nn.LeakyReLU(0.2),
-
-            #out: 256 x 33 x 33 (128 x 17 x 17)
-            nn.Conv2d(ndf, ndf*2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf*2),
-            nn.LeakyReLU(0.2),
-
-            # out 512 x 17 x 17 (256 x 9 x 9)
-            nn.Conv2d(ndf*2, ndf*4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf*4),
-            nn.LeakyReLU(0.2),
-
-            # out 1024 x 9 x 9 (512 x 5 x 5)
-            nn.Conv2d(ndf*4, ndf*8, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf*8),
-            nn.LeakyReLU(0.2),
-
-            # # out: 1024 x 5 x 5
-            nn.Conv2d(ndf*8, ndf*8, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf*8),
-            nn.LeakyReLU(0.2),
-
-            # out (1 x 1 x 1)
-            nn.Conv2d(ndf*8, 1, 4, 1, 0, bias=False),
-            # nn.Sigmoid()
-
+            sn_conv2d(self.in_dim, self.conv_dim, 4, 2, 1),
+            nn.LeakyReLU(0.1),
+            sn_conv2d(self.conv_dim, self.conv_dim*2, 4, 2, 1),
+            nn.LeakyReLU(0.1),
+            sn_conv2d(self.conv_dim*2, self.conv_dim*4, 4, 2, 1),
+            nn.LeakyReLU(0.1),
+            sn_conv2d(self.conv_dim*4, self.conv_dim*4, 4, 2, 1),
+            nn.LeakyReLU(0.1),
+            SelfAttention(256),
+            sn_conv2d(self.conv_dim*4, self.conv_dim*8, 4, 2, 1),
+            nn.LeakyReLU(0.1),
+            SelfAttention(512),
+            nn.Conv2d(self.conv_dim*8, 1, 4)
         )
 
-    def forward(self, input_):
-        # print("before")
-        output = self.layers(input_)
-        # print(output.shape)
-        # print("after")
-        return output.view(-1, 1).squeeze(1)
+    def forward(self, x):
+        out = self.layers(x)
+
+        return out.squeeze()

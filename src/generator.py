@@ -74,38 +74,57 @@ class Generator(nn.Module):
 
         return output
 
+from CustomLayers import sn_conv2d, sn_convT2d, GenBlock, SelfAttention
 
-class StaticGenerator(nn.Module):
-    def __init__(self, nz=100, ngf=64, nc=3):
-        super(Generator, self).__init__()
-        self.main = nn.Sequential(
-            # input is Z, going into a convolution
-            nn.ConvTranspose2d(nz, ngf * 8, 4, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 8),
+class GeneratorSeg(nn.Module):
+    def __init__(self, color_ch=2):
+        super(GeneratorSeg, self).__init__()
+        # TODO: check nb channels in vgg
+
+        vgg = models.vgg19_bn(pretrained=True)
+
+        features = list(vgg.features.children())
+
+        self.convert_bw_to_rgb = nn.Sequential(
+            nn.Conv2d(1, 3, 3, 1, 1),
+            nn.BatchNorm2d(3),
             nn.ReLU(True),
-            # state size. (ngf*8) x 4 x 4
-            nn.ConvTranspose2d(ngf * 8, ngf * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ngf * 4),
-            nn.ReLU(True),
-            # state size. (ngf*4) x 8 x 8
-            nn.ConvTranspose2d(ngf * 4, ngf * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ngf * 2),
-            nn.ReLU(True),
-            # state size. (ngf*2) x 16 x 16
-            nn.ConvTranspose2d(ngf * 2,  ngf * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ngf*2),
-            nn.ReLU(True),
-            # state size. (ngf*2) x 16 x 16
-            nn.ConvTranspose2d(ngf * 2,     ngf, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ngf),
-            nn.ReLU(True),
-            # state size. (ngf) x 32 x 32
-            nn.ConvTranspose2d(    ngf,      nc, 4, 2, 1, bias=False),
-            nn.Tanh()
-            # state size. (nc) x 64 x 64
+            nn.Conv2d(3, 3, 3, 1, 1),
+            nn.BatchNorm2d(3),
+            nn.ReLU(True)
+        )
+        self.enc1 = nn.Sequential(*features[:7])
+        self.enc2 = nn.Sequential(*features[7:14])
+        self.enc3 = nn.Sequential(*features[14:27])
+        self.enc4 = nn.Sequential(*features[27:40])
+
+        self.gen4 = nn.Sequential(
+            *([sn_convT2d(512, 256, kernel_size=2, stride=2)]+
+              [sn_conv2d(256, 256, kernel_size=3, stride=1, padding=1),
+               nn.BatchNorm2d(256),
+               nn.ReLU(True)]*4)
         )
 
-    def forward(self, input):
-        output = self.main(input)
+        self.gen3 = GenBlock(512, 128, 4)
+        self.gen2 = GenBlock(256, 64, 2)
+        self.gen1 = GenBlock(128, color_ch, 2)
 
-        return output
+        self.attention1 = SelfAttention(128)
+        self.attention2 = SelfAttention(64)
+
+    def forward(self, x):
+        x = self.convert_bw_to_rgb(x)
+        enc1 = self.enc1(x)
+        enc2 = self.enc2(enc1)
+        enc3 = self.enc3(enc2)
+        enc4 = self.enc4(enc3)
+
+        gen4 = self.gen4(enc4)
+        gen3 = self.gen3(torch.cat([enc3, gen4], 1))
+        gen3 = self.attention1(gen3)
+        # Maybe should apply the attention layer on the enc
+        # enc2 = self.attention1(enc2)
+        gen2 = self.gen2(torch.cat([enc2, gen3], 1))
+        gen2 = self.attention2(gen2)
+        gen1 = self.gen1(torch.cat([enc1, gen2], 1))
+        return gen1
