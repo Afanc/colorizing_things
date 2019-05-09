@@ -75,6 +75,7 @@ class Generator(nn.Module):
         return output
 
 from CustomLayers import sn_conv2d, sn_convT2d, GenBlock, SelfAttention
+import torchvision.models as models
 
 class GeneratorSeg(nn.Module):
     def __init__(self, color_ch=2):
