@@ -23,12 +23,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage.color import lab2rgb
 
+import os, ssl
+if (not os.environ.get('PYTHONHTTPSVERIFY', '')
+    and getattr(ssl, '_create_unverified_context', None)): 
+    ssl._create_default_https_context = ssl._create_unverified_context
+
 
 # In[2]:
 
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+print("device is ", device)
 
 #data
 transform = transforms.Compose([transforms.Resize(128)])
@@ -53,7 +60,7 @@ stl10_trainset = STLGray.STL10GrayColor(root="./data",
 
 
 # Parameters
-batch_size = 25
+batch_size = 6
 # z_dim = 256
 params_loader = {
     'batch_size': batch_size,
@@ -344,36 +351,3 @@ for epoch in range(n_epochs):
                     str(round(lossD[-1],3))+"\t"+
                     str(round(lossG[-1],3))+"\t"+
                     str(round(lossE[-1],3))+"\n")
-
-        
-    
-    
-
-
-# In[ ]:
-
-
-fig, axs = plt.subplots(2, figsize=(10,10))
-fig.subplots_adjust(hspace=0.3)
-
-
-axs[0].set_title("All Losses")
-axs[0].set_xlabel("iterations")
-axs[0].set_ylabel("Loss")
-axs[0].plot(G_losses,label="G")
-axs[0].plot(D_losses,label="D")
-axs[0].legend()
-
-axs[1].set_title("After 1000 iterations")
-axs[1].set_xlabel("iterations")
-axs[1].set_ylabel("Loss")
-axs[1].plot(G_losses[1000:],label="G")
-axs[1].plot(D_losses[1000:],label="D")
-axs[1].legend()
-
-
-# In[ ]:
-
-
-
-
