@@ -71,7 +71,7 @@ stl10_dtset_g = dsets.STL10(root="./data",
 #
 
 # Parameters
-batch_size = 25
+batch_size = 6
 # z_dim = 256
 params_loader = {
     'batch_size': batch_size,
@@ -123,6 +123,10 @@ def gen_hinge_loss(netD, fake_data):
     loss = -netD(fake_data).mean()
 
     return loss
+
+j = 0
+with open("all_losses.txt", "w+") as f :
+    f.write("iteration\tlossD\tlossG\n")
 
 for epoch in range(n_epochs):
     print("epoch :", epoch)
@@ -181,17 +185,41 @@ for epoch in range(n_epochs):
               f"d_out_real: {m_d_loss}, "
               f"g_out_fake: {m_g_loss}")
 
-        if idx % 100 == 0:
+        if i%100 == 0:
 
-            # grayscale = torch.squeeze(img_g.detach())
-            # img_display = utls.convert_lab2rgb(grayscale,
-            #                                    fakes.detach())
-            vutils.save_image(fakes.detach(),
-                              f'./_{epoch}_epoch_{idx}.png',
+            netG.eval()
+            fakes = netG(img_g)
+            #img_features = encoder(img_g)
+            #img_colorized = generator(img_features)
+            #img_display = utls.convert_lab2rgb(img_g, img_colorized.detach())
+
+            netG.train()
+
+            vutils.save_image(img_display,
+                              f"/var/tmp/stu04/___epoch_{epoch}_iteration_{i}.png",
+                              nrow=5,
                               normalize=True)
+
+            torch.save({
+                'generator_state_dict': generator.state_dict(),
+                'discriminator_state_dict': discriminator.state_dict(),
+                'optimizer_g_state_dict': optimizer_g.state_dict(),
+                'optimizer_d_state_dict': optimizer_d.state_dict(),
+            }, f'/var/tmp/stu04/_weights_{epoch}_iteration_{i}.pth')
+
+            print(">plotted and saved weights")
+
+        lossD.append(m_d_loss)
+        lossG.append(m_g_loss)
+
 
         # Release the gpu memory
         del fakes, g_loss
 
         torch.cuda.empty_cache()
 
+        j += 1
+        with open("all_losses.txt", "a+") as f :
+            f.write(str(j)+"\t"+
+                    str(round(lossD[-1],3))+"\t"+
+                    str(round(lossG[-1],3))+"\t")
