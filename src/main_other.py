@@ -128,6 +128,9 @@ j = 0
 with open("all_losses.txt", "w+") as f :
     f.write("iteration\tlossD\tlossG\n")
 
+lossD = []
+lossG = []
+
 for epoch in range(n_epochs):
     print("epoch :", epoch)
 
@@ -181,11 +184,11 @@ for epoch in range(n_epochs):
 
 
         print(f"Epoch [{epoch}/{n_epochs}], "
-              f"iter[{idx}/{len(train_loader)}], "
+              f"iter[{idx}/{len(train_loader_g)}], "
               f"d_out_real: {m_d_loss}, "
               f"g_out_fake: {m_g_loss}")
 
-        if i%100 == 0:
+        if j%100 == 0:
 
             netG.eval()
             fakes = netG(img_g)
@@ -195,17 +198,17 @@ for epoch in range(n_epochs):
 
             netG.train()
 
-            vutils.save_image(img_display,
-                              f"/var/tmp/stu04/___epoch_{epoch}_iteration_{i}.png",
+            vutils.save_image(fakes,
+                              f"/var/tmp/stu04/___epoch_{epoch}_iteration_{j}.png",
                               nrow=5,
                               normalize=True)
 
             torch.save({
-                'generator_state_dict': generator.state_dict(),
-                'discriminator_state_dict': discriminator.state_dict(),
+                'generator_state_dict': netG.state_dict(),
+                'discriminator_state_dict': netD.state_dict(),
                 'optimizer_g_state_dict': optimizer_g.state_dict(),
                 'optimizer_d_state_dict': optimizer_d.state_dict(),
-            }, f'/var/tmp/stu04/_weights_{epoch}_iteration_{i}.pth')
+            }, f'/var/tmp/stu04/_weights_{epoch}_iteration_{j}.pth')
 
             print(">plotted and saved weights")
 
@@ -218,8 +221,8 @@ for epoch in range(n_epochs):
 
         torch.cuda.empty_cache()
 
-        j += 1
         with open("all_losses.txt", "a+") as f :
             f.write(str(j)+"\t"+
                     str(round(lossD[-1],3))+"\t"+
-                    str(round(lossG[-1],3))+"\t")
+                    str(round(lossG[-1],3))+"\n")
+        j += 1
