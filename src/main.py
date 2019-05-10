@@ -56,7 +56,7 @@ sagan = True
 encoder = enc.Encoder(z_dim=z_dim)
 
 #gan
-#generator = gen.Generator(z_dim=z_dim, init_depth=512)
+generator = gen.Generator(z_dim=z_dim, init_depth=512)
 #sagan
 #generator = gen.GeneratorSeg(color_ch=2)
 
