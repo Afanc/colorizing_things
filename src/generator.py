@@ -3,6 +3,12 @@
 import torch.nn as nn
 import numpy as np
 
+import os, ssl
+
+if (not os.environ.get('PYTHONHTTPSVERIFY', '')
+    and getattr(ssl, '_create_unverified_context', None)): 
+    ssl._create_default_https_context = ssl._create_unverified_context
+
 class Generator(nn.Module):
     """
     Generator class: Take a random vector Z_dim and transform it in image.
