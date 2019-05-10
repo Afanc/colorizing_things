@@ -107,15 +107,13 @@ class GeneratorSeg(nn.Module):
         self.enc4 = nn.Sequential(*features[27:40])
 
         self.gen4 = nn.Sequential(
-            sn_conv2d(512, 256, kernel_size=3, stride=1, padding=1),
+            *(features[40:-1]+
+            [sn_conv2d(512, 256, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(True),
-            sn_conv2d(256, 256, kernel_size=3, stride=1, padding=1),
+            sn_convT2d(256, 256, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm2d(256),
-            nn.ReLU(True),
-            sn_convT2d(256, 256, kernel_size=2, stride=2),
-            nn.BatchNorm2d(256),
-            nn.ReLU()
+            nn.ReLU(True)])
         )
 
         self.gen3 = GenBlock(512, 128, 2)
