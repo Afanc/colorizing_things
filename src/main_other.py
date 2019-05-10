@@ -176,22 +176,22 @@ for epoch in range(n_epochs):
         m_g_loss = g_loss.item()
 
 
-        print(f"Epoch [{epoch}/{n_epochs}], "
-              f"iter[{idx}/{len(train_loader)}], "
-              f"d_out_real: {m_d_loss}, "
-              f"g_out_fake: {m_g_loss}")
-
         if idx % 100 == 0:
+            print(f"Epoch [{epoch}/{n_epochs}], "
+                  f"iter[{idx}/{len(train_loader_c)}], "
+                  f"d_out_real: {m_d_loss}, "
+                  f"g_out_fake: {m_g_loss}")
 
-            # grayscale = torch.squeeze(img_g.detach())
-            # img_display = utls.convert_lab2rgb(grayscale,
-            #                                    fakes.detach())
+        if idx == len(train_loader_c)-1:
+            fakes = netG(img_g)
             vutils.save_image(fakes.detach(),
-                              f'./_{epoch}_epoch_{idx}.png',
-                              normalize=True)
+                          f'./_{epoch}_epoch.png',
+                          normalize=True)
 
         # Release the gpu memory
         del fakes, g_loss
 
         torch.cuda.empty_cache()
+
+
 
