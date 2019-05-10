@@ -48,7 +48,7 @@ params_loader = {
 
 train_loader = DataLoader(stl10_trainset, **params_loader)
 
-load_old_state = False
+load_old_state = True 
 
 # Create model
 encoder = enc.Encoder(z_dim=z_dim)
@@ -59,7 +59,7 @@ discriminator = disc.Discriminator(max_depth=512)
 
 if load_old_state:
     # Caution: I saved models with wrong name !!!!!!!!
-    checkpoint = torch.load('_weights_8_iteration_600.pth')
+    checkpoint = torch.load('_weights_11_iteration_1000.pth')
 
     encoder.load_state_dict(checkpoint['encoder_state_dict'])
     generator.load_state_dict(checkpoint['generator_state_dict'])
