@@ -48,12 +48,17 @@ params_loader = {
 
 train_loader = DataLoader(stl10_trainset, **params_loader)
 
-load_old_state = True 
+#both can't be True - yet
+load_old_state = False
+sagan = True
 
 # Create model
 encoder = enc.Encoder(z_dim=z_dim)
 
-generator = gen.Generator(z_dim=z_dim, init_depth=512)
+#gan
+#generator = gen.Generator(z_dim=z_dim, init_depth=512)
+#sagan
+#generator = gen.GeneratorSeg(color_ch=2)
 
 discriminator = disc.Discriminator(max_depth=512)
 

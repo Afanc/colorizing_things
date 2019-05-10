@@ -2,6 +2,7 @@
 import warnings
 import numpy as np
 import torch
+import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision.transforms import Resize
 from skimage import color
@@ -11,7 +12,7 @@ import STL10GrayColor as stl_gray
 
 
 def get_dataset(size=128):
-    transform = transforms.Compose([transforms.Resize(128)])
+    transform = transforms.Compose([transforms.Resize(size)])
 
     stl10_trainset = stl_gray.STL10GrayColor(root="../data",
                                     split='train',
@@ -82,6 +83,13 @@ def train(model, training_loader) :
     epoch_train_loss = np.mean(train_losses)
 
     return((epoch_train_loss, accuracy))
+
+from torch.nn.init import xavier_uniform_
+
+def xavier_init_weights(m):
+    if type(m) == nn.Linear or type(m) == nn.Conv2d:
+        xavier_uniform_(m.weight)
+        m.bias.data.fill_(0.)
 
 # https://github.com/pytorch/examples/blob/master/dcgan/main.py
 # custom weights initialization called on netG and netD

@@ -44,7 +44,7 @@ class STL10GrayColor(STL10):
             # Transform numpy array to torch tensor
             L_tensor = torch.from_numpy(L_normalized.astype(np.float32))
             ab_tensor = torch.from_numpy(ab_normalized.astype(np.float32))
-
+            L_tensor.unsqueeze_(0)
         return (L_tensor, ab_tensor)
 
 if __name__ == "__main__":
