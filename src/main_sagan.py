@@ -203,12 +203,13 @@ for epoch in range(n_epochs):
                               nrow=5,
                               normalize=True)
 
-            torch.save({
-                'generator_state_dict': netG.state_dict(),
-                'discriminator_state_dict': netD.state_dict(),
-                'optimizer_g_state_dict': optimizer_g.state_dict(),
-                'optimizer_d_state_dict': optimizer_d.state_dict(),
-            }, f'/var/tmp/stu04/_weights_{epoch}_iteration_{j}.pth')
+            if j%5000 == 0:
+                torch.save({
+                    'generator_state_dict': netG.state_dict(),
+                    'discriminator_state_dict': netD.state_dict(),
+                    'optimizer_g_state_dict': optimizer_g.state_dict(),
+                    'optimizer_d_state_dict': optimizer_d.state_dict(),
+                }, f'/var/tmp/stu04/_weights_{epoch}_iteration_{j}.pth')
 
             print(">plotted and saved weights")
 
