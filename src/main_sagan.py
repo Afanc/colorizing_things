@@ -81,8 +81,8 @@ params_loader = {
 train_loader_c = DataLoader(stl10_dtset_c, **params_loader)
 train_loader_g = DataLoader(stl10_dtset_g, **params_loader)
 
-netG = gen.GeneratorSeg(color_ch=3)
-netD = disc.SADiscriminator(in_dim=3)
+netG = gen.GeneratorSeg()
+netD = disc.SADiscriminator()
 
 # TODO init layers of the generator in the class
 netD.apply(utls.xavier_init_weights)
