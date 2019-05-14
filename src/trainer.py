@@ -5,9 +5,10 @@ from torch.optim import Adam
 import torchvision.utils as vutils
 
 from discriminator import SADiscriminator
-from generator import GeneratorSeg
+from generator import GeneratorUNet
 from losses import Loss
 from utils import get_loadersSTL10, xavier_init_weights
+
 
 class Trainer():
 
@@ -27,7 +28,7 @@ class Trainer():
         print("All packages loaded correctly.")
 
     def _init_models(self, load_weights):
-        self.netG = GeneratorSeg()
+        self.netG = GeneratorUNet()
         self.netD = SADiscriminator()
 
         if load_weights:
@@ -40,7 +41,6 @@ class Trainer():
 
         self.netG.to(self.device)
         self.netD.to(self.device)
-
 
     def _init_optimizers(self, lr_g, lr_d, betas):
         self.optimizer_g = Adam(self.netG.parameters(), lr=lr_g, betas=betas)
@@ -126,11 +126,10 @@ class Trainer():
                       f"d_out_real: {m_d_loss}, "
                       f"g_out_fake: {m_g_loss}")
 
-                if counter_iter%100 == 0:
+                if counter_iter % 100 == 0:
                     self._save_images(img_g, epoch, counter_iter)
 
-
-                    if counter_iter%5000 == 0:
+                    if counter_iter % 5000 == 0:
                         self._save_models(epoch, counter_iter)
 
                     print(">plotted and saved weights")
@@ -144,7 +143,7 @@ class Trainer():
                 torch.cuda.empty_cache()
 
                 with open("all_losses.txt", "a+") as file:
-                    file.write(str(counter_iter)+"\t"+
-                               str(round(losses_d[-1], 3))+"\t"+
-                               str(round(losses_g[-1], 3))+"\n")
+                    file.write(str(counter_iter) + "\t" +
+                               str(round(losses_d[-1], 3)) + "\t" +
+                               str(round(losses_g[-1], 3)) + "\n")
                 counter_iter += 1

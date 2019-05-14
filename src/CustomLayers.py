@@ -2,10 +2,12 @@ import torch
 import torch.nn as nn
 from torch.nn.utils import spectral_norm
 
+
 def flatten(img):
     bs, _, width, height = img.shape
 
     return img.view(bs, -1, width*height)
+
 
 def sn_conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=0):
     """Add a spectral normalization around the conv layer."""
@@ -15,6 +17,7 @@ def sn_conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=0):
                                    stride,
                                    padding))
 
+
 def sn_convT2d(in_channels, out_channels, kernel_size, stride=1, padding=0):
     """Add a spectral normalization around the convTranspose layer."""
     return spectral_norm(nn.ConvTranspose2d(in_channels,
@@ -22,6 +25,8 @@ def sn_convT2d(in_channels, out_channels, kernel_size, stride=1, padding=0):
                                             kernel_size,
                                             stride,
                                             padding))
+
+
 class SelfAttention(nn.Module):
 
     def __init__(self, ch_in, sq_fact=8):
@@ -49,6 +54,7 @@ class SelfAttention(nn.Module):
         out = self.gamma*out + x
 
         return out
+
 
 class GenBlock(nn.Module):
 

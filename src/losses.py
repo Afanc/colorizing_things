@@ -3,12 +3,14 @@
 import torch
 import torch.nn as nn
 
+
 class Loss():
     """Various loss function for GAN training."""
 
     def __init__(self, loss_type="hinge_loss"):
         """
-        Loss function available: [hinge_loss, wass_loss, ls_loss, hinge_vae_loss]
+        Loss function available:
+            [hinge_loss, wass_loss, ls_loss, hinge_vae_loss]
         """
         loss_type = "_" + loss_type
         assert loss_type in self._losses_available(), f"Error, loss {loss_type} not implemented."
@@ -34,6 +36,7 @@ class Loss():
 # Hinge Adversial loss #
 ########################
 
+
 def _hinge_disc_loss(net_d, real_data, fake_data):
     # Train with real
     d_out_real = net_d(real_data)
@@ -48,6 +51,7 @@ def _hinge_disc_loss(net_d, real_data, fake_data):
 
     return d_loss
 
+
 def _hinge_gen_loss(net_d, fake_data):
     loss = -net_d(fake_data).mean()
 
@@ -56,6 +60,7 @@ def _hinge_gen_loss(net_d, fake_data):
 ####################
 # Wasserstein loss #
 ####################
+
 
 def _gradient_penalty(net_d, real_data, fake_data, lambda_=10):
     bs, *_ = real_data.shape
@@ -82,18 +87,19 @@ def _gradient_penalty(net_d, real_data, fake_data, lambda_=10):
 
     return penalty
 
+
 def _wass_disc_loss(net_d, real_data, fake_data, drift=1e-3, gp=True):
     """Wasserstein loss of the discriminator."""
     real_out = net_d(real_data)
     fake_out = net_d(fake_data)
 
-    loss = fake_out.mean() - real_out.mean()\
-           + (drift * (real_out**2).mean())
+    loss = fake_out.mean() - real_out.mean() + (drift * (real_out**2).mean())
 
     if gp:
         loss += _gradient_penalty(net_d, real_data, fake_data)
 
     return loss
+
 
 def _wass_gen_loss(net_d, fake_data):
     """Wasserstein loss of the generator."""
@@ -105,7 +111,9 @@ def _wass_gen_loss(net_d, fake_data):
 # Least square loss #
 #####################
 
+
 CRITERION = nn.MSELoss()
+
 
 def _ls_disc_loss(net_d, reals, fakes, real_labels, fake_labels):
     """Least square loss of the discriminator."""
@@ -117,12 +125,14 @@ def _ls_disc_loss(net_d, reals, fakes, real_labels, fake_labels):
 
     return loss_real + loss_fake
 
+
 def _ls_gen_loss(net_d, fakes, labels):
     """Least square loss of the generator."""
     output = net_d(fakes)
     loss_g = CRITERION(output, labels)
 
     return loss_g
+
 
 def _gen_hinge_loss_vae(netD, fake_data, img_g, mu, logvar):
 
