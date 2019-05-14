@@ -60,6 +60,25 @@ def ls_gen_loss(netD, fakes, labels, criterion):
 
     return loss_g
 
+def _gen_hinge_loss_vae(netD, fake_data, img_g, mu, logvar):
+
+    fake_grayscale = rgb2gray(fake_data.permute(0,2,3,1).cpu().detach().numpy())
+    fake_grayscale = torch.from_numpy(fake_grayscale).to(device)
+
+    img_g = img_g.squeeze(1)
+
+    BCE = nn.MSELoss()(fake_grayscale, img_g)
+    #BCE = fun.binary_cross_entropy()(fake_grayscale, img_g, reduction='sum')
+
+    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+
+    loss = -netD(fake_data).mean()
+
+    vae_pen = 0.1 #this could be dynamic ? hmm
+
+    return loss+vae_pen*(BCE+KLD)
+
+
 # Example of use:
 # real_labels = torch.full((batch_size,), real_label, device=device)
 # fake_labels = torch.full((batch_size,), fake_label, device=device)
