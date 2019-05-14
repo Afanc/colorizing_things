@@ -6,6 +6,7 @@ import torchvision.utils as vutils
 
 from discriminator import SADiscriminator
 from generator import GeneratorUNet
+from shading import Shading
 from losses import Loss
 from utils import get_loadersSTL10, xavier_init_weights
 
@@ -30,6 +31,7 @@ class Trainer():
     def _init_models(self, load_weights):
         self.netG = GeneratorUNet()
         self.netD = SADiscriminator()
+        self.netS = Shading()
 
         if load_weights:
             checkpoint = torch.load(load_weights)
@@ -39,21 +41,22 @@ class Trainer():
         else:
             self.netD.apply(xavier_init_weights)
 
+        self.netS.apply(xavier_init_weights)
+
         self.netG.to(self.device)
         self.netD.to(self.device)
+        self.netS.to(self.device)
 
     def _init_optimizers(self, lr_g, lr_d, betas):
         self.optimizer_g = Adam(self.netG.parameters(), lr=lr_g, betas=betas)
         self.optimizer_d = Adam(self.netD.parameters(), lr=lr_d, betas=betas)
+        self.optimizer_s = Adam(self.netS.parameters(), lr=lr_g, betas=betas)
 
-    def _save_images(self, img_g, epoch, counter_iter):
-        self.netG.eval()
-        fakes = self.netG(img_g)
-        self.netG.train()
-
+    def _save_images(self, fakes, epoch, counter_iter, val="fakes"):
         vutils.save_image(
             fakes,
-            f"{self.folder_save}/___epoch_{epoch}_iteration_{counter_iter}.png",
+            f"{self.folder_save}/"
+            f"_{val}_epoch_{epoch}_iteration_{counter_iter}.png",
             nrow=6,
             normalize=True
         )
@@ -62,8 +65,7 @@ class Trainer():
         torch.save({
             'generator_state_dict': self.netG.state_dict(),
             'discriminator_state_dict': self.netD.state_dict(),
-            'optimizer_g_state_dict': self.optimizer_g.state_dict(),
-            'optimizer_d_state_dict': self.optimizer_d.state_dict(),
+            'shading_state_dict': self.netS.state_dict(),
         }, f'{self.folder_save}/_weights_{epoch}_iteration_{counter_iter}.pth')
 
     def train(self):
@@ -75,6 +77,7 @@ class Trainer():
 
         losses_d = []
         losses_g = []
+        losses_s = []
 
         for epoch in range(self.n_epochs):
             print("epoch :", epoch)
@@ -96,8 +99,17 @@ class Trainer():
                 # Create fake colors
                 fakes = self.netG(img_g)
 
-                d_loss = self.loss.disc_loss(self.netD, img_c, fakes.detach())
+                shaded_fakes = self.netS(torch.cat([fakes.detach(), img_g], 1))
 
+                d_loss_standard = self.loss.disc_loss(self.netD,
+                                                      img_c,
+                                                      fakes.detach())
+                d_loss_shaded = self.loss.disc_loss(self.netD,
+                                                    img_c,
+                                                    shaded_fakes.detach())
+
+                # TODO: maybe divide d_loss by 2
+                d_loss = d_loss_standard + d_loss_shaded
                 m_d_loss = d_loss.item()
 
                 # Backward and optimize
@@ -121,13 +133,31 @@ class Trainer():
 
                 m_g_loss = g_loss.item()
 
+                #################
+                # Train Shading #
+                #################
+
+                s_loss = self.loss.gen_loss(self.netD, shaded_fakes)
+
+                # Backward and optimize
+                self.netS.zero_grad()
+                s_loss.backward()
+                self.optimizer_s.step()
+
+                m_s_loss = s_loss.item()
+
                 print(f"Epoch [{epoch}/{self.n_epochs}], "
                       f"iter[{idx}/{len(self.train_loader_g)}], "
                       f"d_out_real: {m_d_loss}, "
-                      f"g_out_fake: {m_g_loss}")
+                      f"g_out_fake: {m_g_loss}, "
+                      f"s_out_fake: {m_s_loss}")
 
                 if counter_iter % 100 == 0:
-                    self._save_images(img_g, epoch, counter_iter)
+                    self._save_images(fakes.detach(), epoch, counter_iter)
+                    self._save_images(shaded_fakes.detach(),
+                                      epoch,
+                                      counter_iter,
+                                      val="shaded")
 
                     if counter_iter % 5000 == 0:
                         self._save_models(epoch, counter_iter)
@@ -136,14 +166,16 @@ class Trainer():
 
                 losses_d.append(m_d_loss)
                 losses_g.append(m_g_loss)
+                losses_s.append(m_s_loss)
 
                 # Release the gpu memory
-                del fakes, g_loss
+                del fakes, shaded_fakes, g_loss, s_loss
 
                 torch.cuda.empty_cache()
 
                 with open("all_losses.txt", "a+") as file:
                     file.write(str(counter_iter) + "\t" +
                                str(round(losses_d[-1], 3)) + "\t" +
-                               str(round(losses_g[-1], 3)) + "\n")
+                               str(round(losses_g[-1], 3)) + "\t" +
+                               str(round(losses_s[-1], 3)) + "\n")
                 counter_iter += 1
