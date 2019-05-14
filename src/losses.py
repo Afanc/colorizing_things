@@ -8,7 +8,7 @@ class Loss():
 
     def __init__(self, loss_type="hinge_loss"):
         """
-        Loss function available: [hinge_loss, wass_loss, ls_loss]
+        Loss function available: [hinge_loss, wass_loss, ls_loss, hinge_vae_loss]
         """
         loss_type = "_" + loss_type
         assert loss_type in self._losses_available(), f"Error, loss {loss_type} not implemented."
@@ -26,6 +26,9 @@ class Loss():
 
     def _ls_loss(self):
         return _ls_disc_loss, _ls_gen_loss
+
+    def _hinge_vae_loss(self):
+        return _hinge_disc_loss, _gen_hinge_loss_vae
 
 ########################
 # Hinge Adversial loss #
