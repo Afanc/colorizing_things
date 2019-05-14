@@ -58,6 +58,7 @@ class Discriminator(nn.Module):
         output = self.layers(input_)
 
         return output.view(-1, 1).squeeze(1)
+
 from CustomLayers import sn_conv2d, SelfAttention
 
 class SADiscriminator(nn.Module):
@@ -65,10 +66,9 @@ class SADiscriminator(nn.Module):
     Discriminator with self attention layers
     """
 
-    def __init__(self, in_dim=3, img_size=64, conv_dim=64):
+    def __init__(self, in_dim=3, conv_dim=64):
         super(SADiscriminator, self).__init__()
         self.in_dim = in_dim
-        self.img_size = img_size
         self.conv_dim = conv_dim
 
         self.layers = nn.Sequential(
@@ -80,7 +80,6 @@ class SADiscriminator(nn.Module):
             nn.LeakyReLU(0.1),
             sn_conv2d(self.conv_dim*4, self.conv_dim*4, 4, 2, 1),
             nn.LeakyReLU(0.1),
-            # SelfAttention(256),
             sn_conv2d(self.conv_dim*4, self.conv_dim*8, 4, 2, 1),
             nn.LeakyReLU(0.1),
             SelfAttention(512),

@@ -6,7 +6,7 @@ import numpy as np
 import os, ssl
 
 if (not os.environ.get('PYTHONHTTPSVERIFY', '')
-    and getattr(ssl, '_create_unverified_context', None)): 
+        and getattr(ssl, '_create_unverified_context', None)):
     ssl._create_default_https_context = ssl._create_unverified_context
 
 class Generator(nn.Module):
@@ -85,9 +85,12 @@ from CustomLayers import sn_conv2d, sn_convT2d, GenBlock, SelfAttention
 import torchvision.models as models
 
 class GeneratorSeg(nn.Module):
-    def __init__(self, color_ch=2):
+    """Generator SegNet.
+    This class take a black and white image and generate the colors of
+    the given image.
+    """
+    def __init__(self, out_dim=3):
         super(GeneratorSeg, self).__init__()
-        # TODO: check nb channels in vgg
 
         vgg = models.vgg19_bn(pretrained=True)
 
@@ -108,27 +111,25 @@ class GeneratorSeg(nn.Module):
 
         self.gen4 = nn.Sequential(
             *(features[40:-1]+
-            [sn_conv2d(512, 256, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(True),
-            sn_convT2d(256, 256, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(True)])
+              [sn_conv2d(512, 256, kernel_size=3, stride=1, padding=1),
+               nn.BatchNorm2d(256),
+               nn.ReLU(True),
+               sn_convT2d(256, 256, kernel_size=4, stride=2, padding=1),
+               nn.BatchNorm2d(256),
+               nn.ReLU(True)])
         )
 
         self.gen3 = GenBlock(512, 128, 2)
         self.gen2 = GenBlock(256, 64, 2)
-        # self.gen1 = GenBlock(128, color_ch, 3)
         self.gen1 = nn.Sequential(
             sn_conv2d(128, 64, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
         )
         self.last = nn.Sequential(
-            sn_convT2d(64, color_ch, kernel_size=4, stride=2, padding=1),
+            sn_convT2d(64, out_dim, kernel_size=4, stride=2, padding=1),
             nn.Tanh()
         )
-        # self.attention1 = SelfAttention(128)
         self.attention = SelfAttention(64)
 
     def forward(self, x):
@@ -140,13 +141,9 @@ class GeneratorSeg(nn.Module):
 
         gen4 = self.gen4(enc4)
         gen3 = self.gen3(torch.cat([enc3, gen4], 1))
-        # gen3 = self.attention1(gen3)
-        # Maybe should apply the attention layer on the enc
-        # enc2 = self.attention1(enc2)
         gen2 = self.gen2(torch.cat([enc2, gen3], 1))
-        # gen2 = self.attention2(gen2)
-        # enc1 = self.attention2(enc1)
         gen1 = self.gen1(torch.cat([enc1, gen2], 1))
         attn = self.attention(gen1)
         out = self.last(attn)
+
         return out

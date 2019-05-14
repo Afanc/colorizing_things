@@ -2,12 +2,13 @@ import torch
 import torch.nn as nn
 from torch.nn.utils import spectral_norm
 
-def flatten(x):
-    bs, ch, width, height = x.shape
+def flatten(img):
+    bs, _, width, height = img.shape
 
-    return x.view(bs, -1, width*height)
+    return img.view(bs, -1, width*height)
 
 def sn_conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=0):
+    """Add a spectral normalization around the conv layer."""
     return spectral_norm(nn.Conv2d(in_channels,
                                    out_channels,
                                    kernel_size,
@@ -15,6 +16,7 @@ def sn_conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=0):
                                    padding))
 
 def sn_convT2d(in_channels, out_channels, kernel_size, stride=1, padding=0):
+    """Add a spectral normalization around the convTranspose layer."""
     return spectral_norm(nn.ConvTranspose2d(in_channels,
                                             out_channels,
                                             kernel_size,
@@ -49,29 +51,26 @@ class SelfAttention(nn.Module):
         return out
 
 class GenBlock(nn.Module):
+
     def __init__(self, in_channels, out_channels, nb_conv_layers):
         super(GenBlock, self).__init__()
         middle_channels = in_channels // 2
-        # layers = []
-        # layers = [
-        #     sn_conv2d(in_channels, middle_channels, kernel_size=3, padding=1),
-        #     nn.BatchNorm2d(middle_channels),
-        #     nn.ReLU(inplace=True)
-        # ]
-        # layers += [
-        #     sn_conv2d(middle_channels, middle_channels, kernel_size=3, padding=1),
-        #     nn.BatchNorm2d(middle_channels),
-        #     nn.ReLU(inplace=True),
-        # ] * (nb_conv_layers - 2)
-        layers = [
-            sn_conv2d(in_channels, middle_channels, kernel_size=3, padding=1),
+
+        self.generate = nn.Sequential(
+            sn_conv2d(in_channels,
+                      middle_channels,
+                      kernel_size=3,
+                      padding=1),
             nn.BatchNorm2d(middle_channels),
-            nn.ReLU(inplace=True),
-            sn_convT2d(middle_channels, out_channels, kernel_size=4, stride=2, padding=1),
+            nn.ReLU(True),
+            sn_convT2d(middle_channels,
+                       out_channels,
+                       kernel_size=4,
+                       stride=2,
+                       padding=1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(),
-        ]
-        self.generate = nn.Sequential(*layers)
+            nn.ReLU(True)
+        )
 
     def forward(self, x):
         return self.generate(x)

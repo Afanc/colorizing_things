@@ -1,25 +1,61 @@
 #!/usr/bin/python
 import warnings
-import numpy as np
 import torch
 import torch.nn as nn
+from torch.nn.init import xavier_uniform_
+from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-from torchvision.transforms import Resize
-from skimage import color
-#import STL10 as stl
 from torchvision.datasets import STL10
-import STL10GrayColor as stl_gray
 
+from skimage import color
 
-def get_dataset(size=128):
-    transform = transforms.Compose([transforms.Resize(size)])
+def _get_transform(size, nb_channels=3):
+    mean_std = [[0.5]*nb_channels, [0.5]*nb_channels]
 
-    stl10_trainset = stl_gray.STL10GrayColor(root="../data",
-                                    split='train',
-                                    download=True,
-                                    transform=transform)
+    transformations = [transforms.Resize(size),
+                       transforms.ToTensor(),
+                       transforms.Normalize(*mean_std)]
 
-    return stl10_trainset
+    if nb_channels == 1:
+        transformations.insert(1, transforms.Grayscale())
+
+    return transforms.Compose(transformations)
+
+def _load_dataset(folder, split, transform):
+    params_dataset = {
+        "root": folder,
+        "download": True,
+        "split": split,
+        "transform": transform
+    }
+
+    return STL10(**params_dataset)
+
+def get_datasetsSTL10(size=128, folder="./data", split="train+unlabeled"):
+    """
+    Load the STL10 dataset with the given parameters.
+    Return 2 version of the STL10, the first one in colors and the second one
+    grayscaled.
+    """
+    transform_c = _get_transform(size)
+    transform_g = _get_transform(size, nb_channels=1)
+
+    stl10_dtset_c = _load_dataset(folder, split, transform_c)
+    stl10_dtset_g = _load_dataset(folder, split, transform_g)
+
+    return stl10_dtset_c, stl10_dtset_g
+
+def get_loadersSTL10(batch_size=6, size=128, folder="./data", split="train+unlabeled"):
+    params_loader = {
+        'batch_size': batch_size,
+        'shuffle': False
+    }
+    stl10_dtset_c, stl10_dtset_g = get_datasetsSTL10(size, folder, split)
+
+    train_loader_c = DataLoader(stl10_dtset_c, **params_loader)
+    train_loader_g = DataLoader(stl10_dtset_g, **params_loader)
+
+    return train_loader_c, train_loader_g
 
 
 def convert_lab2rgb(L, ab, using_save_image=True):
@@ -49,54 +85,26 @@ def convert_lab2rgb(L, ab, using_save_image=True):
 
     # Convert back the numpy array to torch.Tensor.
     # bs x h x w x ch -> bs x ch x h x w
-    if using_save_image :
+    if using_save_image:
         output = torch.from_numpy(reversed_img).float().permute(0, 3, 1, 2)
-    else :
+    else:
         output = torch.from_numpy(reversed_img).float().cuda() #.permute(0, 3, 1, 2)
 
     return output
 
-def train(model, training_loader) :
-
-    model.train()
-
-    for iteration, images in enumerate(training_loader):
-        images = images.to(device)
-        labels = labels.to(device)
-
-        optimizer.zero_grad()
-
-        out = model(images)
-
-        loss = loss_function(out, labels)
-
-        averages += (np.argmax(out.detach(), axis=1) == labels).sum().item()
-        train_losses.append(loss.item())
-
-        loss.backward()
-        optimizer.step()
-
-        if iteration % 100 == 0:
-            print("Training iteration ", iteration, "out of 42")
-
-    accuracy = averages/len(training_loader.dataset)
-    epoch_train_loss = np.mean(train_losses)
-
-    return((epoch_train_loss, accuracy))
-
-from torch.nn.init import xavier_uniform_
-
-def xavier_init_weights(m):
-    if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        xavier_uniform_(m.weight)
-        m.bias.data.fill_(0.)
+def xavier_init_weights(model):
+    """Init the weights of the given model with XAVIER."""
+    if isinstance(model, (nn.Conv2d, nn.Linear)):
+        xavier_uniform_(model.weight)
+        model.bias.data.fill_(0.)
 
 # https://github.com/pytorch/examples/blob/master/dcgan/main.py
 # custom weights initialization called on netG and netD
-def weights_init(m):
-    classname = m.__class__.__name__
+def weights_init(model):
+    """Init the weights of the given model with normal distribution."""
+    classname = model.__class__.__name__
     if classname.find('Conv') != -1:
-        m.weight.data.normal_(0.0, 0.02)
+        model.weight.data.normal_(0.0, 0.02)
     elif classname.find('BatchNorm') != -1:
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
+        model.weight.data.normal_(1.0, 0.02)
+        model.bias.data.fill_(0)
