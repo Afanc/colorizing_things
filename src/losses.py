@@ -115,20 +115,27 @@ def _wass_gen_loss(net_d, fake_data):
 CRITERION = nn.MSELoss()
 
 
-def _ls_disc_loss(net_d, reals, fakes, real_labels, fake_labels):
+def _ls_disc_loss(net_d, real_data, fake_data):
     """Least square loss of the discriminator."""
-    output_real = net_d(reals)
+    batch_size, *_ = real_data.shape
+    real_labels = torch.full((batch_size,), 1., device=real_data.device)
+    fake_labels = torch.full((batch_size,), 0., device=real_data.device)
+
+    output_real = net_d(real_data)
     loss_real = CRITERION(output_real, real_labels)
 
-    output_fake = net_d(fakes)
+    output_fake = net_d(fake_data)
     loss_fake = CRITERION(output_fake, fake_labels)
 
     return loss_real + loss_fake
 
 
-def _ls_gen_loss(net_d, fakes, labels):
+def _ls_gen_loss(net_d, fake_data):
     """Least square loss of the generator."""
-    output = net_d(fakes)
+    batch_size, *_ = fake_data.shape
+    labels = torch.full((batch_size,), 1., device=fake_data.device)
+
+    output = net_d(fake_data)
     loss_g = CRITERION(output, labels)
 
     return loss_g

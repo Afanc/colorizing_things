@@ -15,13 +15,15 @@ class Trainer():
 
     def __init__(self, batch_size=6, n_epochs=50, device=torch.device('cuda'),
                  lr_g=0.0001, lr_d=0.0004, betas=(0., 0.9), load_weights='',
-                 loss_type="hinge_loss", folder_save="/var/tmp/stu04"):
+                 loss_type="hinge_loss", folder_save="/var/tmp/stu04",
+                 img_size=128):
         self.batch_size = batch_size
         self.n_epochs = n_epochs
         self.device = device
         self.folder_save = folder_save
 
-        self.train_loader_c, self.train_loader_g = get_loadersSTL10(batch_size)
+        self.train_loader_c, self.train_loader_g = get_loadersSTL10(batch_size,
+                                                                    img_size)
         self._init_models(load_weights)
         self._init_optimizers(lr_g, lr_d, betas)
         self.loss = Loss(loss_type)
@@ -38,10 +40,10 @@ class Trainer():
 
             self.netG.load_state_dict(checkpoint['generator_state_dict'])
             self.netD.load_state_dict(checkpoint['discriminator_state_dict'])
+            self.netS.load_state_dict(checkpoint['shading_state_dict'])
         else:
             self.netD.apply(xavier_init_weights)
-
-        self.netS.apply(xavier_init_weights)
+            self.netS.apply(xavier_init_weights)
 
         self.netG.to(self.device)
         self.netD.to(self.device)
@@ -152,7 +154,7 @@ class Trainer():
                       f"g_out_fake: {m_g_loss}, "
                       f"s_out_fake: {m_s_loss}")
 
-                if counter_iter % 100 == 0:
+                if counter_iter % 500 == 0:
                     self._save_images(fakes.detach(), epoch, counter_iter)
                     self._save_images(shaded_fakes.detach(),
                                       epoch,
@@ -164,12 +166,12 @@ class Trainer():
 
                     print(">plotted and saved weights")
 
+                # Release the gpu memory
+                del shaded_fakes, s_loss, fakes, g_loss
+
                 losses_d.append(m_d_loss)
                 losses_g.append(m_g_loss)
                 losses_s.append(m_s_loss)
-
-                # Release the gpu memory
-                del fakes, shaded_fakes, g_loss, s_loss
 
                 torch.cuda.empty_cache()
 

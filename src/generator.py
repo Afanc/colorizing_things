@@ -30,6 +30,7 @@ class GeneratorUNet(nn.Module):
             nn.Conv2d(1, 3, 3, 1, 1),
             nn.BatchNorm2d(3),
             nn.ReLU(True),
+            # nn.ConvTranspose2d(3, 3, 4, 2, 1),
             nn.Conv2d(3, 3, 3, 1, 1),
             nn.BatchNorm2d(3),
             nn.ReLU(True)
@@ -46,7 +47,8 @@ class GeneratorUNet(nn.Module):
                nn.ReLU(True),
                sn_convT2d(256, 256, kernel_size=4, stride=2, padding=1),
                nn.BatchNorm2d(256),
-               nn.ReLU(True)])
+               nn.ReLU(True)
+               ])
         )
 
         self.gen3 = GenBlock(512, 128, 2)

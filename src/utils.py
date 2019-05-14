@@ -9,10 +9,11 @@ from torchvision.datasets import STL10
 
 from skimage import color
 
-def _get_transform(size, nb_channels=3):
+
+def _get_transform(img_size, nb_channels=3):
     mean_std = [[0.5]*nb_channels, [0.5]*nb_channels]
 
-    transformations = [transforms.Resize(size),
+    transformations = [transforms.Resize(img_size),
                        transforms.ToTensor(),
                        transforms.Normalize(*mean_std)]
 
@@ -20,6 +21,7 @@ def _get_transform(size, nb_channels=3):
         transformations.insert(1, transforms.Grayscale())
 
     return transforms.Compose(transformations)
+
 
 def _load_dataset(folder, split, transform):
     params_dataset = {
@@ -31,26 +33,29 @@ def _load_dataset(folder, split, transform):
 
     return STL10(**params_dataset)
 
-def get_datasetsSTL10(size=128, folder="./data", split="train+unlabeled"):
+
+def get_datasetsSTL10(img_size=128, folder="./data", split="train+unlabeled"):
     """
     Load the STL10 dataset with the given parameters.
     Return 2 version of the STL10, the first one in colors and the second one
     grayscaled.
     """
-    transform_c = _get_transform(size)
-    transform_g = _get_transform(size, nb_channels=1)
+    transform_c = _get_transform(img_size)
+    transform_g = _get_transform(img_size, nb_channels=1)
 
     stl10_dtset_c = _load_dataset(folder, split, transform_c)
     stl10_dtset_g = _load_dataset(folder, split, transform_g)
 
     return stl10_dtset_c, stl10_dtset_g
 
-def get_loadersSTL10(batch_size=6, size=128, folder="./data", split="train+unlabeled"):
+
+def get_loadersSTL10(batch_size=6, img_size=128, folder="./data",
+                     split="train+unlabeled"):
     params_loader = {
         'batch_size': batch_size,
         'shuffle': False
     }
-    stl10_dtset_c, stl10_dtset_g = get_datasetsSTL10(size, folder, split)
+    stl10_dtset_c, stl10_dtset_g = get_datasetsSTL10(img_size, folder, split)
 
     train_loader_c = DataLoader(stl10_dtset_c, **params_loader)
     train_loader_g = DataLoader(stl10_dtset_g, **params_loader)
@@ -92,11 +97,13 @@ def convert_lab2rgb(L, ab, using_save_image=True):
 
     return output
 
+
 def xavier_init_weights(model):
     """Init the weights of the given model with XAVIER."""
     if isinstance(model, (nn.Conv2d, nn.Linear)):
         xavier_uniform_(model.weight)
         model.bias.data.fill_(0.)
+
 
 # https://github.com/pytorch/examples/blob/master/dcgan/main.py
 # custom weights initialization called on netG and netD
