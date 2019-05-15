@@ -17,6 +17,7 @@ class Trainer():
                  lr_g=0.0001, lr_d=0.0004, betas=(0., 0.9), load_weights='',
                  loss_type="hinge_loss", folder_save="/var/tmp/stu04",
                  img_size=128):
+
         self.batch_size = batch_size
         self.n_epochs = n_epochs
         self.device = device
