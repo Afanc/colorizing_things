@@ -1,5 +1,19 @@
 # colorizing_things
-let's add some colors to this dull world
+let's add some colors to this dull world.
+
+Goal: Create an hand-by-hand network which will colorize black and white images.
+
+## Approaches:
+
+### Earlier approches:
+
+In the beginning of this project, the main idea was to use an encoder to extract the main features of the grayscaled image and from those features to recreate the 2D image color space with a generator. Once colors are generated, there are mixed with the black and white to recreate a colorized image. And the discriminator is fed with this colorized image.
+
+The first architecture was a adversial autoencoder. This network was suppose to learn by itself to recreate the color space of the image using the adversial process of a GAN. The color space used was the CIE Lab color space, and the generator was creating the a, b dim. The a, b are then merge with the L (grayscaled image) to create the final image.
+
+The Encoder was a pretrained vgg16, modified to accept 1 dim in input(image in grayscale). It sends the data in a latent space Z of dim 100.
+
+The Generator was 
 
 structure :
 VAE into a GAN
