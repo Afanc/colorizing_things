@@ -15,7 +15,15 @@ The Encoder was a pretrained vgg16, modified to accept 1 dim in input(image in g
 
 The Generator took a latent space of 100 and recreate the a, b dim of the color space. The architecture of the generator was stack of upsampling convTranspose2d to recreate the a, b dim with the correct width and height.
 
-The Discriminator took
+The Discriminator took the colorized image and tried to say if it was a real image or a fake.
+
+
+
+#### Loss tested:
+
+1. LSGAN:
+2. Wasserstein GAN:
+3. Adversial hinge loss:
 
 structure :
 VAE into a GAN
