@@ -19,44 +19,50 @@ class GeneratorUNet(nn.Module):
     This class take a black and white image and generate the colors of
     the given image.
     """
-    def __init__(self, out_dim=3):
+    def __init__(self, in_dim=1, out_dim=3):
         super(GeneratorUNet, self).__init__()
 
-        vgg = models.vgg19_bn(pretrained=True)
+        resnet = models.resnet34(pretrained=True)
 
-        features = list(vgg.features.children())
+        features = list(resnet.children())
 
         self.convert_bw_to_rgb = nn.Sequential(
-            nn.Conv2d(1, 3, 3, 1, 1),
+            nn.Conv2d(in_dim, 3, 3, 1, 1),
             nn.BatchNorm2d(3),
             nn.ReLU(True),
-            # nn.ConvTranspose2d(3, 3, 4, 2, 1),
             nn.Conv2d(3, 3, 3, 1, 1),
             nn.BatchNorm2d(3),
             nn.ReLU(True)
         )
-        self.enc1 = nn.Sequential(*features[:7])
-        self.enc2 = nn.Sequential(*features[7:14])
-        self.enc3 = nn.Sequential(*features[14:27])
-        self.enc4 = nn.Sequential(*features[27:40])
+        self.enc1 = nn.Sequential(*features[:4])
+        self.enc2 = features[4]
+        self.enc3 = features[5]
+        self.enc4 = features[6]
 
         self.gen4 = nn.Sequential(
-            *(features[40:-1] +
+            *([features[7]] +
               [sn_conv2d(512, 256, kernel_size=3, stride=1, padding=1),
                nn.BatchNorm2d(256),
                nn.ReLU(True),
+               # Quick fix
                sn_convT2d(256, 256, kernel_size=4, stride=2, padding=1),
                nn.BatchNorm2d(256),
+               nn.ReLU(True),
+               sn_convT2d(256, 128, kernel_size=4, stride=2, padding=1),
+               nn.BatchNorm2d(128),
                nn.ReLU(True)
                ])
         )
 
-        self.gen3 = GenBlock(512, 128, 2)
-        self.gen2 = GenBlock(256, 64, 2)
+        self.gen3 = GenBlock(256, 64, 2)
+        self.gen2 = GenBlock(128, 64, 2, up=False)
         self.gen1 = nn.Sequential(
             sn_conv2d(128, 64, padding=1),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
+            nn.ReLU(True),
+            sn_convT2d(64, 64, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(True)
         )
         self.last = nn.Sequential(
             sn_convT2d(64, out_dim, kernel_size=4, stride=2, padding=1),

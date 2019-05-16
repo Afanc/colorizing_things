@@ -58,25 +58,34 @@ class SelfAttention(nn.Module):
 
 class GenBlock(nn.Module):
 
-    def __init__(self, in_channels, out_channels, nb_conv_layers):
+    def __init__(self, in_channels, out_channels, nb_conv_layers, up=True):
         super(GenBlock, self).__init__()
         middle_channels = in_channels // 2
 
-        self.generate = nn.Sequential(
-            sn_conv2d(in_channels,
-                      middle_channels,
-                      kernel_size=3,
-                      padding=1),
-            nn.BatchNorm2d(middle_channels),
-            nn.ReLU(True),
-            sn_convT2d(middle_channels,
-                       out_channels,
-                       kernel_size=4,
-                       stride=2,
-                       padding=1),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(True)
-        )
+        layers = [sn_conv2d(in_channels,
+                            middle_channels,
+                            kernel_size=3,
+                            padding=1),
+                  nn.BatchNorm2d(middle_channels),
+                  nn.ReLU(True)]
+
+        if up:
+            layers += [sn_convT2d(middle_channels,
+                                  out_channels,
+                                  kernel_size=4,
+                                  stride=2,
+                                  padding=1),
+                       nn.BatchNorm2d(out_channels),
+                       nn.ReLU(True)]
+        else:
+            layers += [sn_conv2d(middle_channels,
+                                 out_channels,
+                                 kernel_size=3,
+                                 padding=1),
+                       nn.BatchNorm2d(out_channels),
+                       nn.ReLU(True)]
+
+        self.generate = nn.Sequential(*layers)
 
     def forward(self, x):
         return self.generate(x)
