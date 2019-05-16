@@ -1,7 +1,12 @@
 # colorizing_things
 let's add some colors to this dull world.
 
+Groupe members: ...,Anthony Gillioz
+
+## Objectives:
 Goal: Create an hand-by-hand network which will colorize black and white images.
+
+## Problematic:
 
 ## Approaches:
 
@@ -19,6 +24,7 @@ The first network has been tested with a vanilla GAN loss (BCELoss), LSGAN and t
 
 ![First_results](imgs/first_results.jpg)
 
+### Final approche:
 
 
 
