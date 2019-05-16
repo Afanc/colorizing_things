@@ -13,7 +13,9 @@ The first architecture was a adversial autoencoder. This network was suppose to 
 
 The Encoder was a pretrained vgg16, modified to accept 1 dim in input(image in grayscale). It sends the data in a latent space Z of dim 100.
 
-The Generator was 
+The Generator took a latent space of 100 and recreate the a, b dim of the color space. The architecture of the generator was stack of upsampling convTranspose2d to recreate the a, b dim with the correct width and height.
+
+The Discriminator took
 
 structure :
 VAE into a GAN
