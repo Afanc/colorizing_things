@@ -1,5 +1,39 @@
 # colorizing_things
-let's add some colors to this dull world
+let's add some colors to this dull world.
+
+Groupe members: ...,Anthony Gillioz
+
+## Objectives:
+Goal: Create an hand-by-hand network which will colorize black and white images.
+
+## Problematic:
+
+## Approaches:
+
+### Earlier approches:
+
+In the beginning of this project, the main idea was to use an encoder to extract the main features of the grayscaled image and from those features to recreate the 2D image color space with a generator. Once colors are generated, there are mixed with the black and white to recreate a colorized image. And the discriminator is fed with this colorized image.
+
+The first architecture was a adversial autoencoder. This network was suppose to learn by itself to recreate the color space of the image using the adversial process of a GAN. The color space used was the CIE Lab color space, and the generator was creating the a, b dim. The a, b are then merge with the L (grayscaled image) to create the final image.
+
+The Encoder was a pretrained vgg16, modified to accept 1 dim in input(image in grayscale). It sends the data in a latent space Z of dim 100.
+The Generator took a latent space of 100 and recreate the a, b dim of the color space. The architecture of the generator was stack of upsampling convTranspose2d to recreate the a, b dim with the correct width and height.
+The Discriminator took the colorized image and tried to say if it was a real image or a fake.
+
+The first network has been tested with a vanilla GAN loss (BCELoss), LSGAN and the Wasserstein Loss (loss functions used in this project are explained in the Sec. Loss tested). But no matter the loss used the results were always in poor quality (see images below).
+
+![First_results](imgs/first_results.jpg)
+
+### Final approche:
+
+
+
+
+#### Loss tested:
+
+1. LSGAN:
+2. Wasserstein GAN:
+3. Adversial hinge loss:
 
 structure :
 VAE into a GAN
