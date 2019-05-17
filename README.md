@@ -43,7 +43,8 @@ The first thing was to deepen the network, going to 19 layers on the generator w
 ### difference ?
 We tried :
     - training the discriminator more than the generator, at different rates
-    - adding residual connections to the generator
+
+    - adding residual connections to the generator \n
     - outputing colors in the cielab colorspace and feeding this to the discriminator
     - implementing a VAE instead of AE, introducing noise before decoding
     - training the autoencoder to generate grayscales before training it to colorize images
