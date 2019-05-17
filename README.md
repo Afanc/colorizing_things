@@ -42,15 +42,16 @@ At this point we tested multiple strategies to improve our network.
 The first thing was to deepen the network, going to 19 layers on the generator with the pretrained weights from vgg19.
 ### difference ?
 We tried :
-    - training the discriminator more than the generator, at different rates
 
-    - adding residual connections to the generator \n
+    - training the discriminator more than the generator, at different rates
+    - adding residual connections to the generator 
     - outputing colors in the cielab colorspace and feeding this to the discriminator
     - implementing a VAE instead of AE, introducing noise before decoding
     - training the autoencoder to generate grayscales before training it to colorize images
     - implementing a shading autoencoder as described by K. Frans (2017) [https://arxiv.org/abs/1704.08834] parallel to our generator, feeding both networks to the discriminator
 
 Results for all attempts are not shown as they generally led to worse results than with our final architecture. When results were similar and a choice had to be made between two networks, the least complex and the most memory efficient approach was always selected. In general, all networks seemed to learn to colorize images after iterating through ~1 milion images (variable batch sizes), yet most networks did (one of the following) :
+
     - not perform with consistency (oscillation)
     - collapsed (when using "traditional losses" such as MSE, BCE)
     - failed to sharpen colorization around the edges
