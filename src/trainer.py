@@ -53,7 +53,7 @@ class Trainer():
         vutils.save_image(
             fakes,
             f"{self.folder_save}/"
-            f"X_{val}_epoch_{epoch}_iteration_{counter_iter}.png",
+            f"X_{val}Q_epoch_{epoch}_iteration_{counter_iter}.png",
             nrow=6,
             normalize=True
         )
@@ -62,7 +62,7 @@ class Trainer():
         torch.save({
             'generator_state_dict': self.netG.state_dict(),
             'discriminator_state_dict': self.netD.state_dict(),
-        }, f'{self.folder_save}/_weights_{epoch}_iteration_{counter_iter}.pth')
+        }, f'{self.folder_save}/S_weights_{epoch}_iteration_{counter_iter}.pth')
 
     def train(self):
         counter_iter = 0
@@ -121,7 +121,7 @@ class Trainer():
 
                 m_g_loss = g_loss.item()
 
-                if counter_iter % 100 == 0:
+                if counter_iter % 10 == 0:
                     print(f"Epoch [{epoch}/{self.n_epochs}], "
                           f"iter[{idx}/{len(self.train_loader_g)}], "
                           f"d_out_real: {m_d_loss}, "

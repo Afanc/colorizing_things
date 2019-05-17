@@ -67,12 +67,6 @@ class GenBlock(nn.Module):
                             kernel_size=3,
                             padding=1),
                   nn.BatchNorm2d(middle_channels),
-                  nn.ReLU(True),
-                  sn_conv2d(middle_channels,
-                            middle_channels,
-                            kernel_size=3,
-                            padding=1),
-                  nn.BatchNorm2d(middle_channels),
                   nn.ReLU(True)]
 
         if up:
