@@ -62,7 +62,7 @@ class Trainer():
         torch.save({
             'generator_state_dict': self.netG.state_dict(),
             'discriminator_state_dict': self.netD.state_dict(),
-        }, f'{self.folder_save}/X_weights_{epoch}_iteration_{counter_iter}.pth')
+        }, f'{self.folder_save}/_weights_{epoch}_iteration_{counter_iter}.pth')
 
     def train(self):
         counter_iter = 0
