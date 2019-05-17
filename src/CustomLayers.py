@@ -69,7 +69,7 @@ class GenBlock(nn.Module):
                        stride=2,
                        padding=1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(True)
+            nn.ReLU(True),
         )
 
     def forward(self, x):

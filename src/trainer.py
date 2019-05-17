@@ -7,7 +7,7 @@ import torchvision.utils as vutils
 from discriminator import SADiscriminator
 from generator import GeneratorSeg
 from losses import Loss
-from utils import get_loadersSTL10, xavier_init_weights
+from utils import get_loadersSTL10, xavier_init_weights, convert1
 
 class Trainer():
 
@@ -86,7 +86,7 @@ class Trainer():
 
                 # The last batch hasn't the same batch size so skip it
                 bs, *_ = img_g.shape
-                if bs != self.batch_size:
+                if bs != self.batch_size :
                     continue
 
                 #######################

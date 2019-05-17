@@ -92,6 +92,22 @@ def convert_lab2rgb(L, ab, using_save_image=True):
 
     return output
 
+import numpy as np
+
+def convert1(fakes, gray, device):
+
+    fakes = fakes.cpu().double().detach().permute(0, 2, 3, 1).numpy()
+    gray = gray.cpu().double().detach().permute(0, 2, 3, 1).numpy()
+
+    fakes_yuv = color.rgb2yuv(fakes)
+
+    new = np.concatenate((gray, fakes_yuv[:, :, :, 1:3]), axis=3)
+    new_fakes = color.yuv2rgb(new)
+
+    fakes = torch.from_numpy(new_fakes).float().permute(0, 3, 1, 2)
+
+    return fakes.to(device)
+
 def xavier_init_weights(model):
     """Init the weights of the given model with XAVIER."""
     if isinstance(model, (nn.Conv2d, nn.Linear)):
