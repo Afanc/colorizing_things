@@ -1,14 +1,18 @@
-# colorizing_things
+# Colorizing Things
 let's add some colors to this dull world.
 
-Groupe members: ...,Anthony Gillioz
+Groupe members: Dariush Mollet, Anthony Gillioz
 
 ## Objectives:
-Goal: Create an hand-by-hand network which will colorize black and white images.
+Goal: Create a hand-by-hand network which will colorize black and white images.
 
-## Problematic:
+## Introduction:
 
-## Approaches:
+## Method:
+
+### Dataset:
+
+We trained our networks on STL10, trained and unlabeled... blabla
 
 ### First approches:
 
@@ -40,7 +44,6 @@ However, no big improvement was seen during the next 350'000 iterations whereas 
 
 At this point we tested multiple strategies to improve our network.
 The first thing was to deepen the network, going to 19 layers on the generator with the pretrained weights from vgg19.
-### difference ?
 We tried :
 
     - training the discriminator more than the generator, at different rates
@@ -58,40 +61,41 @@ Results for all attempts are not shown as they generally led to worse results th
     - failed to remove implausible patches of colors
     - failed to perform correctly on all types of images 
 
+A few errors we did :
+
+    - forgetting to normalize our data
+    - not running eval() before generating data (deceivingly underrating our network)
+    - using a large feature vector z (takes too long to train)
+    - using an inappropriate loss, over and over again
+    - generating too much data (saved weights) and as such exploding space on the disk, abruptly stopping the training
+
+A few examples of non-satisfying networks :
+
+##### here
+
 ######### when did we start producing rgb's again ?
 
-### Final approach :
-
-
-
-
-#### Loss tested:
+###### Loss tested:
 
 1. LSGAN:
 2. Wasserstein GAN:
 3. Adversial hinge loss:
 
-structure :
-VAE into a GAN
-https://imgur.com/a/hpZLm99
--> 
-    base_image -> grayscale -> bigboy152/smallboy16 but smallboy16 first (VGG16) (modified because takes rgb) -> encoder -> discriminator
-    -> so discriminator receives from encoder 1/2 or base_image 1/2
-    -> decoder does it in 2 dimensions (cielab), we sum it to grayscale to get proposed colorized
-    -> we could, later on, augment the dataset based on the latent space of the vae
 
-TODO :
-    -> implement the vae
-        -> implement the smallboy16
-            -> grayscale first
-            -> modify smallboy to understand b_and_w
-        -> decoder
-            -> deconv. into 2 channels
-        -> join it with the b_and_w channel
+### Final approach :
 
-    -> gan
-        -> in theory, generator and discriminator are symmetric 
-        -> and shit anthony how to do 
+
+## Results:
+
+## Conclusion:
+By combining multiple features displayed by [add references here], we were able to come up with a generative network that yield satisfying colorization of 128x128 images.
+However, multiple elements are left to be optimized as the results, in general, would definitely not convince a human eye.
+
+We were not able to make our network give satisfying results for all types of images. As such, the network seemed to either colorize mechanical structures (like cars, boats, planes) very well or, on the other hand, to excell at colorizing cats and dogs and other animals but seldom both categories convincingly. This could either suggest that our network was not complex enough to capture and remember enough features or that we were unable to train our discriminator to properly learn features of real data.
+
+### Difficulties met:
+### What could be optimized/tested:
+
 
 
 SOTA:
