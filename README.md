@@ -12,7 +12,7 @@ Goal: Create a hand-by-hand network which will colorize black and white images.
 
 ### Dataset:
 
-We trained our networks on STL10 [https://cs.stanford.edu/~acoates/stl10] (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck.
+We trained our networks on STL10 [https://cs.stanford.edu/~acoates/stl10] (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck. In this dataset only 5'000 images are labeled, but like models used in this project (GAN) are an self supervised learning algorithm, there was no need of labels.
 
 Original images (96x96) were normalized and resized to 128x128 before being grayscaled. No data augmentation of any kind was performed.
 
