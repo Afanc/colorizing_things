@@ -12,14 +12,16 @@ Goal: Create a hand-by-hand network which will colorize black and white images.
 
 ### Dataset:
 
-We trained our networks on STL10, trained and unlabeled... blabla
+We trained our networks on STL10 [https://cs.stanford.edu/~acoates/stl10] (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck.
+
+Original images (96x96) were normalized and resized to 128x128 before being grayscaled. No data augmentation of any kind was performed.
 
 ### First approches:
 
 At the beginning of this project, the main idea was to use an encoder to extract the main features of a grayscaled image, and from those features to recreate a 2D colored image with a generator/decoder. Once the colors generated, those would be mixed with the grayscale image to recreate a colored image.
 Since we didn't want this autoencoder to generate images "as close as possible" to the actual image, since many different color combinations can be plausible for a single grayscaled image, we went on using a GAN architecture, with the discriminator fed with fake colorized and real color images.
 
-So the first architecture was a adversial autoencoder. This network was supposed to learn by itself to recreate the color space of the image using the adversial process of a GAN. The color space used was the CIE Lab color space, and the generator was creating the a, b dim. The a, b are then merge with the L (grayscaled image) to create the final image.
+So the first architecture was an adversial autoencoder. This network was supposed to learn by itself to recreate the color space of the image using the adversial process of a GAN. The color space used was the CIE Lab color space, and the generator was creating the a, b dim. The a, b are then merge with the L (grayscaled image) to create the final image.
 
 The Encoder was a pretrained vgg16, modified to accept 1 dim in input (image in grayscale). It sends the data in a latent space Z of dim 100.
 The Generator took a latent space of 100 and recreated the a, b dim of the color space. The architecture of the generator was stacks of upsampling convTranspose2d layers to recreate the a, b dim with the correct width and height.
