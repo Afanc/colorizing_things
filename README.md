@@ -8,6 +8,12 @@ Goal: Create a hand-by-hand network which will colorize black and white images.
 
 ## Introduction:
 
+This is a semester project of the "Advanced topics in Machine learning" course. The main goal of this project is to apply the theory seen in class on a concret project. 
+
+Colorizing pictures is an hard problem. Indeed, a car can have multiple colors (blue, red, black, ...), the sky can also have nuance of blue so how can an algorithm find the exact color of a car or the sky. Like this is not a finite problem the main criterion to judge if an image has been corectly colorized is the coherence in the colorization of the objects. If a car is colorized in blue it has to be done on all the car and only on the car (the road around the car must be black).
+
+Once the general context of the project has been exposed, the question of how to solve it came. After few researches, the idea to use a generative model to recreate the colors seemed promising. This technique has the good property that it does not need to declare a clear loss function, but it will learn it by itself. Contrary to other researches in this field which had to deal with this problem of defining a good loss function to recreate the most correct colors [https://richzhang.github.io/colorization/resources/colorful_eccv2016.pdf]. The network explained below will try to learn this loss function by itself.
+
 ## Method:
 
 ### Dataset:
@@ -89,14 +95,24 @@ A few examples of non-satisfying networks :
 
 ## Results:
 
+### Difficulties met:
+
+Really difficult at the begining of the coding step to spot errors that we made. Mainly to discover why we had such poor results with a network that seemed correct.
+
+
+
+### What could be optimized/tested:
+
+- Add another self attention layer in the generator.
+- Try on other datasets (bigger, with less variance in the data)
+- Train on more powerful GPU
+
 ## Conclusion:
 By combining multiple features displayed by [add references here], we were able to come up with a generative network that yield satisfying colorization of 128x128 images.
 However, multiple elements are left to be optimized as the results, in general, would definitely not convince a human eye.
 
 We were not able to make our network give satisfying results for all types of images. As such, the network seemed to either colorize mechanical structures (like cars, boats, planes) very well or, on the other hand, to excell at colorizing cats and dogs and other animals but seldom both categories convincingly. This could either suggest that our network was not complex enough to capture and remember enough features or that we were unable to train our discriminator to properly learn features of real data.
 
-### Difficulties met:
-### What could be optimized/tested:
 
 
 
