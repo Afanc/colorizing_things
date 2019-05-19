@@ -103,9 +103,10 @@ Really difficult at the begining of the coding step to spot errors that we made.
 
 ### What could be optimized/tested:
 
-- Add another self attention layer in the generator.
-- Try on other datasets (bigger, with less variance in the data)
-- Train on more powerful GPU
+- Add another self attention layer in the generator. That could help to generate more precise images.
+- Try to learn on a bigger dataset with less variance in the data. For example [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html), this dataset has only faces and it has less structures to learn it could then learn more easily to reproduce the color.
+- The main limit dealing with generative model and machine learning in general is the computational power. Indeed, once a new model has been coded, practionners have to wait a lot of time before seeing results, so a more powerful GPU could help.
+- Colorizing bigger images, use this network to color HD images (1024x1024). Using a [progressive growing GAN](https://arxiv.org/pdf/1710.10196.pdf) can be helpful to stabilize the learning process.
 
 ## Conclusion:
 By combining multiple features displayed by [add references here], we were able to come up with a generative network that yield satisfying colorization of 128x128 images.
@@ -113,10 +114,7 @@ However, multiple elements are left to be optimized as the results, in general, 
 
 We were not able to make our network give satisfying results for all types of images. As such, the network seemed to either colorize mechanical structures (like cars, boats, planes) very well or, on the other hand, to excell at colorizing cats and dogs and other animals but seldom both categories convincingly. This could either suggest that our network was not complex enough to capture and remember enough features or that we were unable to train our discriminator to properly learn features of real data.
 
-
-
-
-SOTA:
+## References:
 1. https://richzhang.github.io/colorization/resources/colorful_eccv2016.pdf
 2. http://cs231n.stanford.edu/reports/2016/pdfs/219_Report.pdf
 3. http://openaccess.thecvf.com/content_cvpr_2017/papers/Deshpande_Learning_Diverse_Image_CVPR_2017_paper.pdf
