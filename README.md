@@ -18,7 +18,7 @@ Once the general context of the project has been exposed, the question of how to
 
 ### Dataset:
 
-We trained our networks on STL10 [https://cs.stanford.edu/~acoates/stl10] (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck. In this dataset only 5'000 images are labeled, but like models used in this project (GAN) are an self supervised learning algorithm, there was no need of labels.
+We trained our networks on STL10 [https://cs.stanford.edu/~acoates/stl10] (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck. In this dataset only 5'000 images are labeled, but like models used in this project (GAN) are unsupervised learning algorithms, there was no need of labels.
 
 Original images (96x96) were normalized and resized to 128x128 before being grayscaled. No data augmentation of any kind was performed.
 
@@ -42,7 +42,8 @@ Using Wasserstein Loss, we were able to produce actual patterns in images but no
 
 ![First results](imgs/first_results.jpg)
 
-We moved on to adding self-attention layers, as described by Zhang et al. (2018) [https://arxiv.org/abs/1805.08318] in both the generator and discriminator, as penultimate layers, implementing Hinge Loss on the go as described by Zhang et al. This resulted in our first results where the generatoractually took account of the images' edges after 40'000 iterations.
+We moved on to adding self-attention layers, as described by Zhang et al. (2018) [https://arxiv.org/abs/1805.08318] in both the generator and discriminator, as penultimate layers, implementing Hinge Loss on the go as described by Zhang et al. We also changed the number of generated channels, we did not generate a,b layer but the directly RGB's channels. 
+This resulted in our first results where the generator actually took account of the images' edges after 40'000 iterations.
 
 ![SAGAN 1](imgs/res_sagan1.jpg)
 
@@ -81,12 +82,13 @@ A few examples of non-satisfying networks :
 
 ##### here
 
-######### when did we start producing rgb's again ?
+###### GAN Losses:
 
-###### Loss tested:
+Like the learning process of a GAN is complicated (the model can collapse very easily), the loss used to train a GAN is super important. So, few losses were used in this project:
 
-1. LSGAN:
-2. Wasserstein GAN:
+1. Vanilla Gan: Try to minimize the jensen-shanon divergence between the PDF (probability distribution function) of the original data and the PDF of the generated data.
+1. Least square GAN ([LSGAN](https://arxiv.org/pdf/1611.04076.pdf)): Will also minimize the divergence between the orignal PDF and the generated PDF, but it will use X^2 pearson divergence. It will perform more stable during the learning process.
+2. Wasserstein GAN ([WGAN](https://arxiv.org/pdf/1701.07875.pdf)): This loss will minimize the divergence using the wasserstein metric (earth mover). This metric has good properties like it does not explode when the 2 PDF does not overlap and there is no evidence of mode collapse using the WGAN loss.
 3. Adversial hinge loss:
 
 
@@ -98,7 +100,7 @@ A few examples of non-satisfying networks :
 ### Difficulties met:
 
 Really difficult at the begining of the coding step to spot errors that we made. Mainly to discover why we had such poor results with a network that seemed correct.
-
+An other big problem was to know how well is performing our network, because there is no clear manner to measure the score of a GAN. That was only during the TA session that we learned about the Fréchet inception distance (FID) and the Inception score.
 
 
 ### What could be optimized/tested:
