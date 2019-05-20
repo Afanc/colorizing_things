@@ -14,7 +14,7 @@
 
 - [left] [text-align=left] [font=Sans 70px]
 
-Dataset : Cifar10 (train+unlabeled → 100'000 images)
+Dataset : Cifar10 (train+unlabeled → 100'000 images), 128x128
 
 Loss ? "Realistic colors" ? → GANs ❤️
 
@@ -26,44 +26,49 @@ generator : autoencoder (~30 layers, z = 512)
 
 #but accepts 1 channel
     
-
-- [./imgs/first_results.jpg]
+- [center][./imgs/first_results_final.jpg]
 
 - [left] [text-align=left] [font=Sans 70px]
 <span size='x-small'>[Timelapse...]</span>
 
 <b>Final approach :</b>
 
-generator : Unet (~40 layers, z = 100)
+generator : Unet (~40 layers, z = 512)
     • encoder : vgg19 (pretrained on Imagenet)
     • self-attention layers
     • >200'000 iterations (>1 milion images)
 
+We ran into troubles...
+    • vram...
+    • oscillation, consistency
+    • losses
+    • decrypting arxiv papers
+    • did we mention vram ?
+
 --- [./imgs/sa_layer.png] [bottom-right] [font=Sans 20px]
 Zhang et al. (2018) [https://arxiv.org/abs/1805.08318]
 --- [./imgs/final.png]
-
-- [font=Sans 70px]
-Results:
+#Results
 
 - [./imgs/res3.jpg]
 - [./imgs/res1.jpg]
 - [./imgs/res2.jpg]
 
 -[font=Sans 70px]
-What to do next ?
-- [font=Sans 50px]
+<span size='x-large'><b>What next ?</b></span>
 • Train our network on another dataset
-• Work with bigger images
-• Train with more powerful GPU
+• Work with bigger images/expand network
+• More testing
+• <b>Train with more powerful GPU</b>
 
 -[font=Sans 70px]
-Conclusion
--[font=Sans 50px]
+<span size='x-large'><b>Conclusion</b></span>
 • Very interesting project
-• Acquire a lot of knowledge
+• It is not easy...
+• Acquired a lot of knowledge
 • Good team work 
 
 -[font=Sans 50px]
 <span size='xx-large'>Thank you for your attention</span>
+
 Do you have any questions ?

@@ -93,7 +93,6 @@ Like the learning process of a GAN is complicated (the model can collapse very e
 Our final architecture is a Unet SAGAN, making use of 
 
 
-
 ## Results:
 
 Images generated from our final architecture, they are globally correct. Sometimes the model still failed to generate the correct colors, but it produces coherent results. All those images have been generated directly in RGB.
