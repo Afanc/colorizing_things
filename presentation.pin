@@ -1,0 +1,42 @@
+# the 0th "slide" provides default styling for the presentation
+[center]             # position of text
+[black]       # default slide background
+[text-align=center]
+[text-color=green]
+[duration=5.0] 	#total duration time
+
+- 
+A presentation
+#test
+
+-  # lines starting with - separate slides
+
+The format is meant to be <u>simple</u>
+
+# simple enough that you can organize your story and ideas as very plain text. <- this comment appears in -s mode
+
+• Bullet point lists through unicode #insert mode,ctrl+v, u+2022 !
+• Evil, but sometimes needed
+
+--- 
+test
+
+
+--- [font=monospace 18px] [shading-opacity=1.000000] #code style
+
+last slide
+bla
+wro
+noeu
+oaeush
+
+--- [test.jpg]
+
+1
+
+-
+
+2
+
+- 
+salut ça va ? ça va pas fort
