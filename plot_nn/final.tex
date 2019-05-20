@@ -226,6 +226,10 @@
         xlabel={{"512","256"}},zlabel=1,fill=\ConvColor,
         height=4,width={8},depth=4}};
 
+\pic[shift={(1.3,0,0)}] at (dis8-east) {Box={name=dis9,%
+        xlabel={{"1","256"}},fill=\ConvColor,
+        height=1,width={1},depth=1}};
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % connections
 \draw [connection]  (dis0-east)    -- node {\midarrow} (dis1-west);
@@ -260,9 +264,11 @@
 %\node[canvas is zy plane at x=0] (temp) at (40,0,0) {\includegraphics[width=8cm,height=8cm]{cats_col.jpg}};
 \draw [connection]  (-1,-13,0)    -- node {\midarrow} (dis0-west);
 \draw [connection]  (-4,0,0)    -- node {\midarrow} (-1.5,0,0);
+\draw [connection]  (0.5,0,0)    -- node {\midarrow} (cr1-west);
 
 %true false
-\draw [connection]  (dis8-east)    -- node {\midarrow} (35,-13,0);
+\draw [connection]  (dis8-east)    -- node {\midarrow} (33.0,-13,0);
+\draw [connection]  (33.7,-13,0)    -- node {\midarrow} (35,-13,0);
 \draw [connection]  (35,-13,0)    -- node {\midarrow} (35,-11,0);
 \draw [connection]  (35,-13,0)    -- node {\midarrow} (35,-15,0);
 
