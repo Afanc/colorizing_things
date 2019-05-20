@@ -87,7 +87,7 @@ A few examples of non-satisfying networks :
 Like the learning process of a GAN is complicated (the model can collapse very easily), the loss used to train a GAN is super important. So, few losses were used in this project:
 
 1. Vanilla Gan: Try to minimize the jenson-shanon divergence between the PDF (probability distribution function) of the original data and the PDF of the generated data.
-1. Least square GAN (LSGAN): Will also minimize the divergence between the orignal PDF and the generated PDF, but it will use X^2 pearson divergence. 
+1. Least square GAN ([LSGAN](https://arxiv.org/pdf/1611.04076.pdf): Will also minimize the divergence between the orignal PDF and the generated PDF, but it will use X^2 pearson divergence. It will perform more stable during the learning process.
 2. Wasserstein GAN (WGAN-GP):
 3. Adversial hinge loss:
 
