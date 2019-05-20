@@ -78,10 +78,6 @@ A few errors we did :
     - using an inappropriate loss, over and over again
     - generating too much data (saved weights) and as such exploding space on the disk, abruptly stopping the training
 
-A few examples of non-satisfying networks :
-
-##### here
-
 ##### GAN Losses:
 
 Like the learning process of a GAN is complicated (the model can collapse very easily), the loss used to train a GAN is super important. So, few losses were used in this project:
@@ -92,14 +88,14 @@ Like the learning process of a GAN is complicated (the model can collapse very e
 3. Adversial hinge loss: This loss has been proposed by the [Self Attention GAN (SAGAN)](https://arxiv.org/pdf/1805.08318.pdf) paper. It works well with self attention layers.
 
 
-### Final approach :
+### Final Architecture:
 
 
 
 
 ## Results:
 
-Results below are quite correct. Sometimes the model still failed to generate the correct colors. But it produces usually
+Results from our latest architecture (shown below) are quite correct. Sometimes the model still failed to generate the correct colors, but it produces coherent results. 
 ![Final1](imgs/_fakes_epoch_1_iteration_10500.png)
 ![Final2](imgs/_fakes_epoch_1_iteration_11000.png)
 ![Final3](imgs/_fakes_epoch_1_iteration_12000.png)
