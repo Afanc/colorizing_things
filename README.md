@@ -18,7 +18,7 @@ Once the general context of the project has been exposed, the question of how to
 
 ### Dataset:
 
-We trained our networks on STL10 [https://cs.stanford.edu/~acoates/stl10] (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck. In this dataset only 5'000 images are labeled, but like models used in this project (GAN) are an self supervised learning algorithm, there was no need of labels.
+We trained our networks on STL10 [https://cs.stanford.edu/~acoates/stl10] (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck. In this dataset only 5'000 images are labeled, but like models used in this project (GAN) are unsupervised learning algorithms, there was no need of labels.
 
 Original images (96x96) were normalized and resized to 128x128 before being grayscaled. No data augmentation of any kind was performed.
 
@@ -86,7 +86,8 @@ A few examples of non-satisfying networks :
 
 Like the learning process of a GAN is complicated (the model can collapse very easily), the loss used to train a GAN is super important. So, few losses were used in this project:
 
-1. Least square GAN (LSGAN):
+1. Vanilla Gan: Try to minimize the jenson-shanon divergence between the PDF (probability distribution function) of the original data and the PDF of the generated data.
+1. Least square GAN (LSGAN): Will also minimize the divergence between the orignal PDF and the generated PDF, but it will use X^2 pearson divergence. 
 2. Wasserstein GAN (WGAN-GP):
 3. Adversial hinge loss:
 
