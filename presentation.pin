@@ -43,23 +43,23 @@ generator : Unet (~40 layers, z = 100)
 Zhang et al. (2018) [https://arxiv.org/abs/1805.08318]
 --- [./imgs/final.png]
 
-- [font=Sans 50px]
+- [font=Sans 70px]
 Results:
 
 - [./imgs/res3.jpg]
 - [./imgs/res1.jpg]
 - [./imgs/res2.jpg]
 
--[font=Sans 50px]
+-[font=Sans 70px]
 What to do next ?
-- [font=Sans 35px]
+- [font=Sans 50px]
 • Train our network on another dataset
 • Work with bigger images
 • Train with more powerful GPU
 
--[font=Sans 50px]
+-[font=Sans 70px]
 Conclusion
--[font=Sans 35px]
+-[font=Sans 50px]
 • Very interesting project
 • Acquire a lot of knowledge
 • Good team work 
