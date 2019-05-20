@@ -1,9 +1,10 @@
 # the 0th "slide" provides default styling for the presentation
 [center]             # position of text
-[black]       # default slide background
+[white]       # default slide background
 [text-align=center]
-[text-color=green]
-[duration=5.0] 	#total duration time
+[text-color=black]
+[shading-opacity=0.000000] 
+[duration=2.0] 	#total duration time
 
 - 
 A presentation
@@ -21,22 +22,24 @@ The format is meant to be <u>simple</u>
 --- 
 test
 
+-
+Results:
 
---- [font=monospace 18px] [shading-opacity=1.000000] #code style
-
-last slide
-bla
-wro
-noeu
-oaeush
-
---- [test.jpg]
-
-1
+- [./imgs/_fakes_epoch_1_iteration_10500.png]
+- [./imgs/_fakes_epoch_1_iteration_11000.png]
+- [./imgs/_fakes_epoch_1_iteration_12000.png]
 
 -
-
-2
-
+What to do next ?
 - 
-salut ça va ? ça va pas fort
+• Train our network on another dataset
+• Work with bigger images
+• Train with more powerful GPU
+
+-
+Conclusion
+-
+• Very interesting project
+• Acquire a lot of knowledge
+• 
+
