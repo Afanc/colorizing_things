@@ -91,9 +91,13 @@ Like the learning process of a GAN is complicated (the model can collapse very e
 ### Final Architecture:
 
 Our final architecture is a Unet SAGAN, making use of both self-attention layers and the Unet residuals design.
+
 The generator is using the weights of the pretrained vgg19 on Imagenet by transfer learning and all weights were trained or finetuned.
+
 We use batch normalization and spectral normalization in the generator, activation functions are ReLu in the generator (except after the very last layer, where we use tanh) and LeakyReLu in the discriminator.
+
 We trained our network on batch size 9 for more than 200'000 iterations, with a learning rate of 0.0001 for the generator and 0.0004 for the discriminator (both at the same rate) and then reduced the learning rates by a factor 10 and trained the discriminator twice as many times, for 100'000 more iterations.
+
 We used hinge loss (as previously described) for both the generator and the discriminator with label smoothing at 0.9.
 
 ![Unet SAGAN](imgs/final.png)
