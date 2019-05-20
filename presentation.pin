@@ -14,7 +14,7 @@
 
 - [left] [text-align=left] [font=Sans 70px]
 
-Dataset : Cifar10 (train+unlabeled → 100'000 images), 128x128
+Dataset : STL10 (train+unlabeled → 100'000 images), 128x128
 
 Loss ? "Realistic colors" ? → GANs ❤️
 
