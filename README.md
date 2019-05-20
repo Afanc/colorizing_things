@@ -82,7 +82,7 @@ A few examples of non-satisfying networks :
 
 ##### here
 
-###### GAN Losses:
+##### GAN Losses:
 
 Like the learning process of a GAN is complicated (the model can collapse very easily), the loss used to train a GAN is super important. So, few losses were used in this project:
 
@@ -94,8 +94,15 @@ Like the learning process of a GAN is complicated (the model can collapse very e
 
 ### Final approach :
 
+![Final1](imgs/_fakes_epoch_1_iteration_10500.png)
+![Final2](imgs/_fakes_epoch_1_iteration_11000.png)
+![Final3](imgs/_fakes_epoch_1_iteration_12000.png)
+
+
 
 ## Results:
+
+
 
 ### Difficulties met:
 
