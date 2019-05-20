@@ -89,19 +89,20 @@ Like the learning process of a GAN is complicated (the model can collapse very e
 1. Vanilla Gan: Try to minimize the jensen-shanon divergence between the PDF (probability distribution function) of the original data and the PDF of the generated data.
 1. Least square GAN ([LSGAN](https://arxiv.org/pdf/1611.04076.pdf)): Will also minimize the divergence between the orignal PDF and the generated PDF, but it will use X^2 pearson divergence. It will perform more stable during the learning process.
 2. Wasserstein GAN ([WGAN](https://arxiv.org/pdf/1701.07875.pdf)): This loss will minimize the divergence using the wasserstein metric (earth mover). This metric has good properties like it does not explode when the 2 PDF does not overlap and there is no evidence of mode collapse using the WGAN loss.
-3. Adversial hinge loss:
+3. Adversial hinge loss: This loss has been proposed by the [Self Attention GAN (SAGAN)](https://arxiv.org/pdf/1805.08318.pdf) paper. It works well with self attention layers.
 
 
 ### Final approach :
 
-![Final1](imgs/_fakes_epoch_1_iteration_10500.png)
-![Final2](imgs/_fakes_epoch_1_iteration_11000.png)
-![Final3](imgs/_fakes_epoch_1_iteration_12000.png)
 
 
 
 ## Results:
 
+Results below are quite correct. Sometimes the model still failed to generate the correct colors. But it produces usually
+![Final1](imgs/_fakes_epoch_1_iteration_10500.png)
+![Final2](imgs/_fakes_epoch_1_iteration_11000.png)
+![Final3](imgs/_fakes_epoch_1_iteration_12000.png)
 
 
 ### Difficulties met:
