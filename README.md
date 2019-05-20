@@ -94,6 +94,7 @@ Like the learning process of a GAN is complicated (the model can collapse very e
 
 ### Final approach :
 
+Our final architecture is a Unet SAGAN, making use of 
 
 
 

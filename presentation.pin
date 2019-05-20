@@ -3,24 +3,45 @@
 [white]       # default slide background
 [text-align=center]
 [text-color=black]
+[font=Sans 28px]
 [shading-opacity=0.000000] 
 [duration=2.0] 	#total duration time
 
-- 
-Colorizing Things
-#test
+- [font=Monospace 50px]
+<b><span size="xx-large">Colorizing Things</span></b>
 
--  # lines starting with - separate slides
+<span size='xx-small'>Dariush Mollet, Anthony Gillioz</span>
 
-The format is meant to be <u>simple</u>
+- [left] [text-align=left] [font=Sans 70px]
 
-# simple enough that you can organize your story and ideas as very plain text. <- this comment appears in -s mode
+Dataset : Cifar10 (train+unlabeled → 100'000 images)
 
-• Bullet point lists through unicode #insert mode,ctrl+v, u+2022 !
-• Evil, but sometimes needed
+Loss ? "Realistic colors" ? → GANs ❤️
 
---- 
-test
+<b>First approach :</b>
+
+generator : autoencoder (~30 layers, z = 512)
+    • encoder : vgg16 (pretrained on Imagenet)
+    • custom decoder and discriminator
+
+#but accepts 1 channel
+    
+
+- [./imgs/first_results.jpg]
+
+- [left] [text-align=left] [font=Sans 70px]
+<span size='x-small'>[Timelapse...]</span>
+
+<b>Final approach :</b>
+
+generator : Unet (~40 layers, z = 100)
+    • encoder : vgg19 (pretrained on Imagenet)
+    • self-attention layers
+    • >200'000 iterations (>1 milion images)
+
+--- [./imgs/sa_layer.png] [bottom-right] [font=Sans 20px]
+Zhang et al. (2018) [https://arxiv.org/abs/1805.08318]
+--- [./imgs/final.png]
 
 -
 Results:
