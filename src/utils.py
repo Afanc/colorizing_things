@@ -97,7 +97,6 @@ def convert_lab2rgb(L, ab, using_save_image=True):
 
     return output
 
-
 def xavier_init_weights(model):
     """Init the weights of the given model with XAVIER."""
     if isinstance(model, (nn.Conv2d, nn.Linear)):
