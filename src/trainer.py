@@ -5,7 +5,7 @@ from torch.optim import Adam
 import torchvision.utils as vutils
 
 from discriminator import SADiscriminator
-from generator import GeneratorUNet
+from generator_vgg19 import GeneratorUNet
 from losses import Loss
 from utils import get_loadersSTL10, xavier_init_weights
 
