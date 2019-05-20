@@ -42,7 +42,8 @@ Using Wasserstein Loss, we were able to produce actual patterns in images but no
 
 ![First results](imgs/first_results.jpg)
 
-We moved on to adding self-attention layers, as described by Zhang et al. (2018) [https://arxiv.org/abs/1805.08318] in both the generator and discriminator, as penultimate layers, implementing Hinge Loss on the go as described by Zhang et al. This resulted in our first results where the generatoractually took account of the images' edges after 40'000 iterations.
+We moved on to adding self-attention layers, as described by Zhang et al. (2018) [https://arxiv.org/abs/1805.08318] in both the generator and discriminator, as penultimate layers, implementing Hinge Loss on the go as described by Zhang et al. We also changed the number of generated channels, we did not generate a,b layer but the directly RGB's channels. 
+This resulted in our first results where the generator actually took account of the images' edges after 40'000 iterations.
 
 ![SAGAN 1](imgs/res_sagan1.jpg)
 
@@ -81,12 +82,12 @@ A few examples of non-satisfying networks :
 
 ##### here
 
-######### when did we start producing rgb's again ?
+###### GAN Loss:
 
-###### Loss tested:
+Like the learning process of a GAN is complicated (the model can collapse very easily), the loss used to train a GAN is super important. So, few losses were used in this project:
 
-1. LSGAN:
-2. Wasserstein GAN:
+1. Least square GAN (LSGAN):
+2. Wasserstein GAN (WGAN-GP):
 3. Adversial hinge loss:
 
 
