@@ -78,10 +78,6 @@ A few errors we did :
     - using an inappropriate loss, over and over again
     - generating too much data (saved weights) and as such exploding space on the disk, abruptly stopping the training
 
-A few examples of non-satisfying networks :
-
-##### here
-
 ##### GAN Losses:
 
 Like the learning process of a GAN is complicated (the model can collapse very easily), the loss used to train a GAN is super important. So, few losses were used in this project:
@@ -92,14 +88,14 @@ Like the learning process of a GAN is complicated (the model can collapse very e
 3. Adversial hinge loss: This loss has been proposed by the [Self Attention GAN (SAGAN)](https://arxiv.org/pdf/1805.08318.pdf) paper. It works well with self attention layers.
 
 
-### Final approach :
+### Final Architecture:
 
 
 
 
 ## Results:
 
-Results below are quite correct. Sometimes the model still failed to generate the correct colors. But it produces usually
+Images generated from our final architecture, they are globally correct. Sometimes the model still failed to generate the correct colors, but it produces coherent results. All those images have been generated directly in RGB.
 ![Final1](imgs/_fakes_epoch_1_iteration_10500.png)
 ![Final2](imgs/_fakes_epoch_1_iteration_11000.png)
 ![Final3](imgs/_fakes_epoch_1_iteration_12000.png)
@@ -109,6 +105,49 @@ Results below are quite correct. Sometimes the model still failed to generate th
 
 Really difficult at the begining of the coding step to spot errors that we made. Mainly to discover why we had such poor results with a network that seemed correct.
 An other big problem was to know how well is performing our network, because there is no clear manner to measure the score of a GAN. That was only during the TA session that we learned about the Fréchet inception distance (FID) and the Inception score.
+
+### Example of usage:
+
+In the final_main.py file there is a function main with default values. If you want to train it from scratch you must remove load_weights or give it a None value otherwise you should write the filename of the pretrained weigths.
+```python
+def main():
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    batch_size = 25
+    n_epochs = 10
+    load_weights = "_weights_2_iteration_40000.pth"
+
+    train = Trainer(batch_size=batch_size, n_epochs=n_epochs, device=device,
+                    load_weights=load_weights)
+
+    train.train()
+
+if __name__ == "__main__":
+    main() 
+```
+
+And after to generate colors of grayscaled images:
+
+```python
+import torchvision.utils as vutils
+
+loaders = (train.train_loader_c, train.train_loader_g)
+nb_images_to_generate = 5
+
+for i, ((img_c, _), (img_g, _)) in enumerate(zip(*loaders)):
+    img_g = img_g.to(train.device)
+    
+    train.netG.eval()
+    fakes = train.netG(img_g)
+    vutils.save_image(
+            fakes,
+            f"eval{i+1}.png",
+            nrow=5,
+            normalize=True
+        )
+    
+    if i > nb_images_to_generate:
+        break
+```
 
 
 ### What could be optimized/tested:
