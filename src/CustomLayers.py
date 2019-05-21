@@ -25,7 +25,8 @@ def sn_convT2d(in_channels, out_channels, kernel_size, stride=1, padding=0):
                                             kernel_size,
                                             stride,
                                             padding))
-
+# Ref:
+# https://github.com/heykeetae/Self-Attention-GAN/blob/master/sagan_models.py
 
 class SelfAttention(nn.Module):
 
