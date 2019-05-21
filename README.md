@@ -42,7 +42,7 @@ Using Wasserstein Loss, we were able to produce actual patterns in images but no
 
 ![First results](imgs/first_results.jpg)
 
-We moved on to adding self-attention layers, as described by [Zhang et al. (2018)](https://arxiv.org/abs/1805.08318) in both the generator and discriminator, as penultimate layers, implementing Hinge Loss on the go as described by Zhang et al. We also changed the number of generated channels, we did not generate a,b layer but the directly RGB's channels. 
+We moved on to adding self-attention layers, as described by [Zhang et al. (2018)](https://arxiv.org/abs/1805.08318) and advised by [Deoldify](https://github.com/jantic/DeOldify)in both the generator and discriminator, as penultimate layers, implementing Hinge Loss on the go as described by Zhang et al. We also changed the number of generated channels, we did not generate a,b layer but the directly RGB's channels. 
 This resulted in our first results where the generator actually took account of the images' edges after 40'000 iterations.
 
 ![SAGAN 1](imgs/res_sagan1.jpg)
@@ -98,7 +98,7 @@ We use batch normalization and spectral normalization in the generator, activati
 
 We trained our network on batch size 9 for more than 200'000 iterations, with a learning rate of 0.0001 for the generator and 0.0004 for the discriminator (both at the same rate) and then reduced the learning rates by a factor 10 and trained the discriminator twice as many times, for 100'000 more iterations.
 
-We used hinge loss (as previously described) for both the generator and the discriminator with label smoothing at 0.9.
+We used Adam optimizer, hinge loss (as previously described) for both the generator and the discriminator with label smoothing at 0.9.
 
 ![Unet SAGAN](imgs/final.png)
 [Light yellow : stacks of convolutional layers, dark yellow and blue : batch normalization, red : pooling layers, purple : self-activation layers]
@@ -183,8 +183,9 @@ We were not able to make our network give satisfying results for all types of im
 5. Adam Coates, Honglak Lee, Andrew Y. Ng An Analysis of Single Layer Networks in Unsupervised Feature Learning AISTATS, 2011.
 6. https://arxiv.org/abs/1805.08318
 7. https://arxiv.org/pdf/1611.04076.pdf
-8. https://arxiv.org/pdf/1701.07875.pdf
-9. https://arxiv.org/pdf/1805.08318.pdf
-10. https://arxiv.org/pdf/1505.04597.pdf
-11. http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
+8. https://github.com/jantic/DeOldify
+9. https://arxiv.org/pdf/1701.07875.pdf
+10. https://arxiv.org/pdf/1805.08318.pdf
+11. https://arxiv.org/pdf/1505.04597.pdf
+12. http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
 12. https://arxiv.org/pdf/1710.10196.pdf
