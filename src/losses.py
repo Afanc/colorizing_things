@@ -61,6 +61,9 @@ def _hinge_gen_loss(net_d, fake_data):
 # Wasserstein loss #
 ####################
 
+# Ref:
+# https://github.com/jalola/improved-wgan-pytorch/blob/master/gan_train.py
+
 
 def _gradient_penalty(net_d, real_data, fake_data, lambda_=10):
     bs, *_ = real_data.shape
