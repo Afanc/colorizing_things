@@ -143,6 +143,9 @@ def _ls_gen_loss(net_d, fake_data):
 
     return loss_g
 
+################################
+# variational autoencoder loss #
+################################
 
 def _gen_hinge_loss_vae(netD, fake_data, img_g, mu, logvar):
 
