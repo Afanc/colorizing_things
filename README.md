@@ -1,39 +1,39 @@
 # Colorizing Things
 let's add some colors to this dull world.
 
-Groupe members: Dariush Mollet, Anthony Gillioz
+Group members: Dariush Mollet, Anthony Gillioz
 
 ## Objectives:
 Goal: Create a hand-by-hand network which will colorize black and white images.
 
 ## Introduction:
 
-This is a semester project of the "Advanced topics in Machine learning" course. The main goal of this project is to apply the theory seen in class on a concret project. 
+This is a semester project for the "Advanced topics in Machine learning" course. The main goal of this project is to apply the theory seen in class on a concret project. 
 
-Colorizing pictures is an hard problem. Indeed, a car can have multiple colors (blue, red, black, ...), the sky can also have nuance of blue so how can an algorithm find the exact color of a car or the sky. Like this is not a finite problem the main criterion to judge if an image has been corectly colorized is the coherence in the colorization of the objects. If a car is colorized in blue it has to be done on all the car and only on the car (the road around the car must be black).
+Colorizing pictures is an hard problem. Indeed, a car can have multiple colors (blue, red, black, ...), the sky can also have nuance of blue so how can an algorithm find the exact color of a car or of the sky, when the picture was taken ? Since this is not a finite problem, the main criterion to judge if an image has been corectly colorized is the coherence in the colorization of the objects. If a car is colorized in blue it has to be done on all the car and only on the car (the road around the car should be black, or gray). And of course, leaves tend to be green and traffic lights tend to have certain color codes as wel...
 
-Once the general context of the project has been exposed, the question of how to solve it came. After few researches, the idea to use a generative model to recreate the colors seemed promising. This technique has the good property that it does not need to declare a clear loss function, but it will learn it by itself. Contrary to other researches in this field which had to deal with this problem of defining a good loss function to recreate the most correct colors [https://richzhang.github.io/colorization/resources/colorful_eccv2016.pdf]. The network explained below will try to learn this loss function by itself.
+Once the general context of the project had been exposed, came the question of how to solve it. After few research, the idea to use a generative model to recreate colors seemed promising. This technique has the good property of not needing to declare a clear loss function, but that it will learn it by itself. To the contrary of other research in this field, which had to deal with this problem of defining a good loss function to recreate the most correct colors [https://richzhang.github.io/colorization/resources/colorful_eccv2016.pdf]... The network explained below will try to learn this loss function by itself.
 
 ## Method:
 
 ### Dataset:
 
-We trained our networks on STL10 [https://cs.stanford.edu/~acoates/stl10] (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck. In this dataset only 5'000 images are labeled, but like models used in this project (GAN) are unsupervised learning algorithms, there was no need of labels.
+We trained our networks on STL10 [https://cs.stanford.edu/~acoates/stl10] (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck. In this dataset only 5'000 images are labeled, but like models used in this project (GAN) are unsupervised learning algorithms, there was no need for labels.
 
 Original images (96x96) were normalized and resized to 128x128 before being grayscaled. No data augmentation of any kind was performed.
 
 ### First approches:
 
 At the beginning of this project, the main idea was to use an encoder to extract the main features of a grayscaled image, and from those features to recreate a 2D colored image with a generator/decoder. Once the colors generated, those would be mixed with the grayscale image to recreate a colored image.
-Since we didn't want this autoencoder to generate images "as close as possible" to the actual image, since many different color combinations can be plausible for a single grayscaled image, we went on using a GAN architecture, with the discriminator fed with fake colorized and real color images.
+We didn't want this autoencoder to generate images "as close as possible" to the actual image, since many different color combinations can be plausible for a single grayscaled image, we went on using a GAN architecture, with the discriminator fed with fake colorized and real color images.
 
 So the first architecture was an adversial autoencoder. This network was supposed to learn by itself to recreate the color space of the image using the adversial process of a GAN. The color space used was the CIE Lab color space, and the generator was creating the a, b dim. The a, b are then merge with the L (grayscaled image) to create the final image.
 
-The Encoder was a pretrained vgg16, modified to accept 1 dim in input (image in grayscale). It sends the data in a latent space Z of dim 100.
+The Encoder was a pretrained vgg16 (transfer learning, using only the convolutional part of vgg16), modified to accept 1 dim in input (image in grayscale). It sends the data in a latent space Z of dim 100.
 The Generator took a latent space of 100 and recreated the a, b dim of the color space. The architecture of the generator was stacks of upsampling convTranspose2d layers to recreate the a, b dim with the correct width and height.
 The Discriminator took the colorized image and tried to say if it was a real image or a fake was build in symmetry of the generator, as stacks of conv2d layers.
 
-The first networks were first tested with a vanilla GAN loss (BCELoss), then with LSGAN and Wasserstein Loss (loss functions used in this project are explained in the Sec. Loss tested).
+Those networks were first tested with a vanilla GAN loss (BCELoss), then with LSGAN and Wasserstein Loss (loss functions used in this project are explained in the Sec. Loss tested).
 When using BCELoss an LSGAN, we could not make the network converge. This, of course, resulted in noisy images.
 
 ![Very first results](imgs/very_first_results.jpg)
@@ -74,7 +74,7 @@ A few errors we did :
 
     - forgetting to normalize our data
     - not running eval() before generating data (deceivingly underrating our network)
-    - using a large feature vector z (takes too long to train)
+    - using a too large of feature vector z/bottleneck is not severe enough (takes too long to train)
     - using an inappropriate loss, over and over again
     - generating too much data (saved weights) and as such exploding space on the disk, abruptly stopping the training
 
@@ -90,9 +90,9 @@ Like the learning process of a GAN is complicated (the model can collapse very e
 
 ### Final Architecture:
 
-Our final architecture is a Unet SAGAN, making use of both self-attention layers and the Unet residuals design.
+Our final architecture is a Unet SAGAN, making use of both self-attention layers and the Unet's residuals design as proposed by Ronneberger et al. (2015) [https://arxiv.org/pdf/1505.04597.pdf].
 
-The generator is using the weights of the pretrained vgg19 on Imagenet by transfer learning and all weights were trained or finetuned.
+The generator is using the weights of the pretrained vgg19 (convolutional layers only) on Imagenet by transfer learning and all weights were trained or finetuned.
 
 We use batch normalization and spectral normalization in the generator, activation functions are ReLu in the generator (except after the very last layer, where we use tanh) and LeakyReLu in the discriminator.
 
@@ -112,8 +112,10 @@ Images generated from our final architecture, they are globally correct. Sometim
 
 ### Difficulties met:
 
-Really difficult at the begining of the coding step to spot errors that we made. Mainly to discover why we had such poor results with a network that seemed correct.
+It was really not trivial at the very begining to understand the errors we made, in particular to discover why we had such poor results with a network that seemed appropriate (based on litterature).
 An other big problem was to know how well is performing our network, because there is no clear manner to measure the score of a GAN. That was only during the TA session that we learned about the Fréchet inception distance (FID) and the Inception score.
+
+Finally, we ran into vram shortage multiple times (if not all the time...). So we had to restrain ourselves to quite small batche sizes (often less than 10 images at a time) even though we didn't work with images larger than 128x128. This probably didn't help reduce the gradients' variance accross training.
 
 ### Example of usage:
 
@@ -162,13 +164,14 @@ for i, ((img_c, _), (img_g, _)) in enumerate(zip(*loaders)):
 ### What could be optimized/tested:
 
 - Add another self attention layer in the generator. That could help to generate more precise images.
-- Try to learn on a bigger dataset with less variance in the data. For example [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html), this dataset has only faces and it has less structures to learn it could then learn more easily to reproduce the color.
-- The main limit dealing with generative model and machine learning in general is the computational power. Indeed, once a new model has been coded, practionners have to wait a lot of time before seeing results, so a more powerful GPU could help.
-- Colorizing bigger images, use this network to color HD images (1024x1024). Using a [progressive growing GAN](https://arxiv.org/pdf/1710.10196.pdf) can be helpful to stabilize the learning process.
+- Try to learn on a bigger dataset with less variance in the data. For example [CelebA] [http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html], this dataset has only faces and it has less structures to learn it could then learn more easily to reproduce the color.
+- The main limit dealing with generative model and machine learning in general is the computational power. Indeed, once a new model has been coded, practionners have to wait a lot of time before seeing results, so a more powerful GPU could help. And having more vram available could be of a great help.
+- Colorizing bigger images, use this network to color HD images (1024x1024). Using a [progressive growing GAN] [https://arxiv.org/pdf/1710.10196.pdf] can be helpful to stabilize the learning process.
+- Implement a FID measure to help compare different networks, in the latter parts of the testing.
 
 ## Conclusion:
-By combining multiple features displayed by [add references here], we were able to come up with a generative network that yield satisfying colorization of 128x128 images.
-However, multiple elements are left to be optimized as the results, in general, would definitely not convince a human eye.
+By combining multiple features seen in class and proposed by other authors, we were able to come up with a generative network that yield satisfying colorization of 128x128 images.
+However, multiple elements are left to be optimized as the results, in general, would definitely not convince a human eye consistently :
 
 We were not able to make our network give satisfying results for all types of images. As such, the network seemed to either colorize mechanical structures (like cars, boats, planes) very well or, on the other hand, to excell at colorizing cats and dogs and other animals but seldom both categories convincingly. This could either suggest that our network was not complex enough to capture and remember enough features or that we were unable to train our discriminator to properly learn features of real data.
 
@@ -176,3 +179,11 @@ We were not able to make our network give satisfying results for all types of im
 1. https://richzhang.github.io/colorization/resources/colorful_eccv2016.pdf
 2. http://cs231n.stanford.edu/reports/2016/pdfs/219_Report.pdf
 3. http://openaccess.thecvf.com/content_cvpr_2017/papers/Deshpande_Learning_Diverse_Image_CVPR_2017_paper.pdf
+4. https://cs.stanford.edu/~acoates/stl10
+5. https://arxiv.org/abs/1805.08318
+6. https://arxiv.org/pdf/1611.04076.pdf
+7. https://arxiv.org/pdf/1701.07875.pdf
+8. https://arxiv.org/pdf/1805.08318.pdf
+9. https://arxiv.org/pdf/1505.04597.pdf
+10. http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
+11. https://arxiv.org/pdf/1710.10196.pdf
