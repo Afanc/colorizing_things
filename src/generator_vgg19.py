@@ -13,6 +13,8 @@ if (not os.environ.get('PYTHONHTTPSVERIFY', '')
         and getattr(ssl, '_create_unverified_context', None)):
     ssl._create_default_https_context = ssl._create_unverified_context
 
+# Ref:
+# https://github.com/zijundeng/pytorch-semantic-segmentation/tree/master/models
 
 class GeneratorUNet(nn.Module):
     """Generator UNet.
