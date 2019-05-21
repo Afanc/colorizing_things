@@ -14,6 +14,7 @@
 
 - [left] [text-align=left] [font=Sans 70px]
 
+Goal : Colorizing grayscale images
 Dataset : STL10 (train+unlabeled → 100'000 images), 128x128
 
 Loss ? "Realistic colors" ? → GANs ❤️
@@ -74,3 +75,6 @@ Zhang et al. (2018) [https://arxiv.org/abs/1805.08318]
 <span size='xx-large'>Thank you for your attention</span>
 
 Do you have any questions ?
+
+
+<span size='x-small'>https://github.com/Afanc/colorizing_things</span>
