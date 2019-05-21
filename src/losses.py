@@ -164,18 +164,3 @@ def _gen_hinge_loss_vae(netD, fake_data, img_g, mu, logvar):
     vae_pen = 0.1 #this could be dynamic ? hmm
 
     return loss+vae_pen*(BCE+KLD)
-
-
-# Example of use:
-# real_labels = torch.full((batch_size,), real_label, device=device)
-# fake_labels = torch.full((batch_size,), fake_label, device=device)
-#
-# in epochs:
-# reals = images
-# noise = noise = torch.randn(batch_size, z_dim, 1, 1, device=device)
-# fakes = netG(noise).detach()
-#
-# loss_d = ls_dis_loss(net_d, reals, fakes, real_labels, fake_labels)
-#
-
-# loss_g = ls_gen_loss(net_d, fakes, real_labels)
