@@ -12,13 +12,13 @@ This is a semester project for the "Advanced topics in Machine learning" course.
 
 Colorizing pictures is an hard problem. Indeed, a car can have multiple colors (blue, red, black, ...), the sky can also have nuance of blue so how can an algorithm find the exact color of a car or of the sky, when the picture was taken ? Since this is not a finite problem, the main criterion to judge if an image has been corectly colorized is the coherence in the colorization of the objects. If a car is colorized in blue it has to be done on all the car and only on the car (the road around the car should be black, or gray). And of course, leaves tend to be green and traffic lights tend to have certain color codes as wel...
 
-Once the general context of the project had been exposed, came the question of how to solve it. After few research, the idea to use a generative model to recreate colors seemed promising. This technique has the good property of not needing to declare a clear loss function, but that it will learn it by itself. To the contrary of other research in this field, which had to deal with this problem of defining a good loss function to recreate the most correct colors [Zhang et al. 2016][https://richzhang.github.io/colorization/resources/colorful_eccv2016.pdf]... The network explained below will try to learn this loss function by itself.
+Once the general context of the project had been exposed, came the question of how to solve it. After few research, the idea to use a generative model to recreate colors seemed promising. This technique has the good property of not needing to declare a clear loss function, but that it will learn it by itself. To the contrary of other research in this field, which had to deal with this problem of defining a good loss function to recreate the most correct colors [Zhang et al. 2016](https://richzhang.github.io/colorization/resources/colorful_eccv2016.pdf)... The network explained below will try to learn this loss function by itself.
 
 ## Method:
 
 ### Dataset:
 
-We trained our networks on [STL10][https://cs.stanford.edu/~acoates/stl10] (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck. In this dataset only 5'000 images are labeled, but like models used in this project (GAN) are unsupervised learning algorithms, there was no need for labels.
+We trained our networks on [STL10](https://cs.stanford.edu/~acoates/stl10) (trained+unlabeled) which counts a little more than 100'000 images of the 10 following classes : airplane, bird, car, cat, deer, dog, horse, monkey, ship, truck. In this dataset only 5'000 images are labeled, but like models used in this project (GAN) are unsupervised learning algorithms, there was no need for labels.
 
 Original images (96x96) were normalized and resized to 128x128 before being grayscaled. No data augmentation of any kind was performed.
 
@@ -42,7 +42,7 @@ Using Wasserstein Loss, we were able to produce actual patterns in images but no
 
 ![First results](imgs/first_results.jpg)
 
-We moved on to adding self-attention layers, as described by [Zhang et al. (2018)][https://arxiv.org/abs/1805.08318] in both the generator and discriminator, as penultimate layers, implementing Hinge Loss on the go as described by Zhang et al. We also changed the number of generated channels, we did not generate a,b layer but the directly RGB's channels. 
+We moved on to adding self-attention layers, as described by [Zhang et al. (2018)](https://arxiv.org/abs/1805.08318) in both the generator and discriminator, as penultimate layers, implementing Hinge Loss on the go as described by Zhang et al. We also changed the number of generated channels, we did not generate a,b layer but the directly RGB's channels. 
 This resulted in our first results where the generator actually took account of the images' edges after 40'000 iterations.
 
 ![SAGAN 1](imgs/res_sagan1.jpg)
@@ -90,7 +90,7 @@ Like the learning process of a GAN is complicated (the model can collapse very e
 
 ### Final Architecture:
 
-Our final architecture is a Unet SAGAN, making use of both self-attention layers and the Unet's residuals design as proposed by [Ronneberger et al. (2015)][https://arxiv.org/pdf/1505.04597.pdf].
+Our final architecture is a Unet SAGAN, making use of both self-attention layers and the Unet's residuals design as proposed by [Ronneberger et al. (2015)](https://arxiv.org/pdf/1505.04597.pdf).
 
 The generator is using the weights of the pretrained vgg19 (convolutional layers only) on Imagenet by transfer learning and all weights were trained or finetuned.
 
@@ -164,9 +164,9 @@ for i, ((img_c, _), (img_g, _)) in enumerate(zip(*loaders)):
 ### What could be optimized/tested:
 
 - Add another self attention layer in the generator. That could help to generate more precise images.
-- Try to learn on a bigger dataset with less variance in the data. For example [CelebA][http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html], this dataset has only faces and it has less structures to learn it could then learn more easily to reproduce the color.
+- Try to learn on a bigger dataset with less variance in the data. For example [CelebA](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html), this dataset has only faces and it has less structures to learn it could then learn more easily to reproduce the color.
 - The main limit dealing with generative model and machine learning in general is the computational power. Indeed, once a new model has been coded, practionners have to wait a lot of time before seeing results, so a more powerful GPU could help. And having more vram available could be of a great help.
-- Colorizing bigger images, use this network to color HD images (1024x1024). Using a [progressive growing GAN][https://arxiv.org/pdf/1710.10196.pdf] can be helpful to stabilize the learning process.
+- Colorizing bigger images, use this network to color HD images (1024x1024). Using a [progressive growing GAN](https://arxiv.org/pdf/1710.10196.pdf) can be helpful to stabilize the learning process.
 - Implement a FID measure to help compare different networks, in the latter parts of the testing.
 
 ## Conclusion:
